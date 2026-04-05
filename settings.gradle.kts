@@ -6,7 +6,9 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+    plugins {
+        id("net.fabricmc.fabric-loom-remap") version providers.gradleProperty("loom_version")
+    }
 }
 
-// This matches your mod ID
 rootProject.name = "tamilcraft-discord-commands"
