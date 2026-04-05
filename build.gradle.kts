@@ -18,7 +18,7 @@ repositories {
 
 	// Add the official First Dark Development Maven for SDLink
 	maven("https://maven.firstdark.dev/releases")
-	maven("https://jitpack.io")
+	maven("https://m2.chew.pro/releases")
 }
 
 loom {
@@ -42,9 +42,9 @@ dependencies {
 	modImplementation("net.fabricmc.fabric-api:fabric-api:${providers.gradleProperty("fabric_api_version").get()}")
 	modImplementation("net.fabricmc:fabric-language-kotlin:${providers.gradleProperty("fabric_kotlin_version").get()}")
 	implementation("net.dv8tion:JDA:5.0.1") {
-        exclude(module = "opus-java") // We exclude opus because Minecraft handles its own audio
+        exclude(module = "opus-java") 
     }
-    implementation("com.github.Chew:JDA-Chewtils:3.0.3")
+    implementation("pw.chew:jda-chewtils:3.0.3")
 	// Inject Simple Discord Link and CraterLib using your exact versions
 	implementation("com.hypherionmc.sdlink:sdlink:3.4.0")
 	modImplementation("com.hypherionmc.craterlib:CraterLib-Fabric-1.21:3.1.0")
