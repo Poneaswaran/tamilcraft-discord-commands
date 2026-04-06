@@ -7,7 +7,9 @@ class DiscordEvents {
     
     @CraterEventListener
     fun onCommandRegister(event: SlashCommandRegistrationEvent) {
-        // Register your new IP command here
-        event.addCommand(IpSlashCommand())
+        // Register your dynamic commands here from config
+        DiscordCommandsMod.db.commands.forEach { configCommand ->
+            event.addCommand(DynamicSlashCommand(configCommand))
+        }
     }
 }

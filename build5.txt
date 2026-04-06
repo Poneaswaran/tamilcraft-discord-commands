@@ -1,0 +1,42 @@
+
+> Configure project :
+Fabric Loom: 1.15.5
+
+> Task :checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :compileKotlin
+e: file:///E:/Minecraft/tamilcraft-discord-commands/src/main/kotlin/tamilcraft/discordcommands/DynamicSlashCommand.kt:8:1 Class 'DynamicSlashCommand' is not abstract and does not implement abstract base class member:
+fun execute(p0: SlashCommandEvent!): Unit
+e: file:///E:/Minecraft/tamilcraft-discord-commands/src/main/kotlin/tamilcraft/discordcommands/DynamicSlashCommand.kt:15:26 Assignment type mismatch: actual type is 'List<net.dv8tion.jda.api.interactions.commands.build.OptionData>', but '(Mutable)List<com.hypherionmc.sdlink.shaded.dv8tion.jda.api.interactions.commands.build.OptionData!>!' was expected.
+e: file:///E:/Minecraft/tamilcraft-discord-commands/src/main/kotlin/tamilcraft/discordcommands/DynamicSlashCommand.kt:21:5 'execute' overrides nothing. Potential signatures for overriding:
+fun execute(p0: SlashCommandEvent!): Unit
+fun execute(p0: CommandEvent!): Unit
+e: file:///E:/Minecraft/tamilcraft-discord-commands/src/main/kotlin/tamilcraft/discordcommands/DynamicSlashCommand.kt:27:68 Unresolved reference 'asMention'.
+e: file:///E:/Minecraft/tamilcraft-discord-commands/src/main/kotlin/tamilcraft/discordcommands/Tamilcraftdiscordcommands.kt:9:29 Unresolved reference 'command'.
+e: file:///E:/Minecraft/tamilcraft-discord-commands/src/main/kotlin/tamilcraft/discordcommands/Tamilcraftdiscordcommands.kt:10:22 Unresolved reference 'text'.
+e: file:///E:/Minecraft/tamilcraft-discord-commands/src/main/kotlin/tamilcraft/discordcommands/Tamilcraftdiscordcommands.kt:32:33 Unresolved reference 'CommandManager'.
+e: file:///E:/Minecraft/tamilcraft-discord-commands/src/main/kotlin/tamilcraft/discordcommands/Tamilcraftdiscordcommands.kt:32:33 Argument type mismatch: actual type is 'Comparator<uninferred T (of fun <T> Comparator<T>.then)>', but 'LiteralArgumentBuilder<CommandSourceStack!>!' was expected.
+e: file:///E:/Minecraft/tamilcraft-discord-commands/src/main/kotlin/tamilcraft/discordcommands/Tamilcraftdiscordcommands.kt:33:29 Cannot infer type for value parameter 'source'. Specify it explicitly.
+e: file:///E:/Minecraft/tamilcraft-discord-commands/src/main/kotlin/tamilcraft/discordcommands/Tamilcraftdiscordcommands.kt:33:46 Unresolved reference 'hasPermissionLevel'.
+e: file:///E:/Minecraft/tamilcraft-discord-commands/src/main/kotlin/tamilcraft/discordcommands/Tamilcraftdiscordcommands.kt:34:18 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Minecraft/tamilcraft-discord-commands/src/main/kotlin/tamilcraft/discordcommands/Tamilcraftdiscordcommands.kt:34:23 Unresolved reference 'CommandManager'.
+e: file:///E:/Minecraft/tamilcraft-discord-commands/src/main/kotlin/tamilcraft/discordcommands/Tamilcraftdiscordcommands.kt:35:33 Cannot infer type for value parameter 'context'. Specify it explicitly.
+e: file:///E:/Minecraft/tamilcraft-discord-commands/src/main/kotlin/tamilcraft/discordcommands/Tamilcraftdiscordcommands.kt:37:33 Unresolved reference 'source'.
+e: file:///E:/Minecraft/tamilcraft-discord-commands/src/main/kotlin/tamilcraft/discordcommands/Tamilcraftdiscordcommands.kt:37:55 Unresolved reference 'Text'.
+
+> Task :compileKotlin FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.btapi.BuildToolsApiCompilationWork
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 57s
+1 actionable task: 1 executed

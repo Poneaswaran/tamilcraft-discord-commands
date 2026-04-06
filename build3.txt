@@ -1,0 +1,35 @@
+
+> Configure project :
+Fabric Loom: 1.15.5
+
+> Task :checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :compileKotlin FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileKotlin'.
+> Could not resolve all files for configuration ':compileClasspath'.
+   > Could not find pw.chew:jda-chewtils:3.0.3.
+     Searched in the following locations:
+       - file:/E:/Minecraft/tamilcraft-discord-commands/.gradle/loom-cache/remapped_mods/pw/chew/jda-chewtils/3.0.3/jda-chewtils-3.0.3.pom
+       - file:/C:/Users/nambe/.gradle/caches/fabric-loom/minecraftMaven/pw/chew/jda-chewtils/3.0.3/jda-chewtils-3.0.3.pom
+       - file:/E:/Minecraft/tamilcraft-discord-commands/.gradle/loom-cache/minecraftMaven/pw/chew/jda-chewtils/3.0.3/jda-chewtils-3.0.3.pom
+       - https://maven.fabricmc.net/pw/chew/jda-chewtils/3.0.3/jda-chewtils-3.0.3.pom
+       - https://libraries.minecraft.net/pw/chew/jda-chewtils/3.0.3/jda-chewtils-3.0.3.pom
+       - https://libraries.minecraft.net/pw/chew/jda-chewtils/3.0.3/jda-chewtils-3.0.3.jar
+       - https://repo.maven.apache.org/maven2/pw/chew/jda-chewtils/3.0.3/jda-chewtils-3.0.3.jar
+       - https://repo.maven.apache.org/maven2/pw/chew/jda-chewtils/3.0.3/jda-chewtils-3.0.3.pom
+       - https://maven.firstdark.dev/releases/pw/chew/jda-chewtils/3.0.3/jda-chewtils-3.0.3.pom
+       - https://m2.chew.pro/releases/pw/chew/jda-chewtils/3.0.3/jda-chewtils-3.0.3.pom
+     Required by:
+         root project 'tamilcraft-discord-commands'
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 5s
+1 actionable task: 1 executed
