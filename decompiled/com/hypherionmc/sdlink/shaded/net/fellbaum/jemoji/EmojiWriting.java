@@ -1,0 +1,28 @@
+/*
+ * Decompiled with CFR 0.152.
+ */
+package com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji;
+
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.Emoji;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.EmojiGroup;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.EmojiSubGroup;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.Qualification;
+import java.util.Arrays;
+import java.util.Collections;
+
+interface EmojiWriting {
+    public static final Emoji PENCIL = new Emoji("\u270f\ufe0f", "\\u270F\\uFE0F", Collections.singletonList(":pencil2:"), Collections.singletonList(":pencil2:"), Collections.singletonList(":pencil2:"), Collections.singletonList("pencil"), false, false, 0.6, Qualification.fromString("fully-qualified"), "pencil", EmojiGroup.OBJECTS, EmojiSubGroup.WRITING, false);
+    public static final Emoji PENCIL_UNQUALIFIED = new Emoji("\u270f", "\\u270F", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.singletonList("pencil"), false, false, 0.6, Qualification.fromString("unqualified"), "pencil", EmojiGroup.OBJECTS, EmojiSubGroup.WRITING, true);
+    public static final Emoji BLACK_NIB = new Emoji("\u2712\ufe0f", "\\u2712\\uFE0F", Collections.singletonList(":black_nib:"), Collections.singletonList(":black_nib:"), Collections.singletonList(":black_nib:"), Collections.unmodifiableList(Arrays.asList("black", "nib", "pen")), false, false, 0.6, Qualification.fromString("fully-qualified"), "black nib", EmojiGroup.OBJECTS, EmojiSubGroup.WRITING, false);
+    public static final Emoji BLACK_NIB_UNQUALIFIED = new Emoji("\u2712", "\\u2712", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.unmodifiableList(Arrays.asList("black", "nib", "pen")), false, false, 0.6, Qualification.fromString("unqualified"), "black nib", EmojiGroup.OBJECTS, EmojiSubGroup.WRITING, true);
+    public static final Emoji FOUNTAIN_PEN = new Emoji("\ud83d\udd8b\ufe0f", "\\uD83D\\uDD8B\\uFE0F", Collections.unmodifiableList(Arrays.asList(":pen_fountain:", ":lower_left_fountain_pen:", ":fountain_pen:")), Collections.singletonList(":lower_left_fountain_pen:"), Collections.singletonList(":fountain_pen:"), Collections.unmodifiableList(Arrays.asList("fountain", "pen")), false, false, 0.7, Qualification.fromString("fully-qualified"), "fountain pen", EmojiGroup.OBJECTS, EmojiSubGroup.WRITING, false);
+    public static final Emoji FOUNTAIN_PEN_UNQUALIFIED = new Emoji("\ud83d\udd8b", "\\uD83D\\uDD8B", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.unmodifiableList(Arrays.asList("fountain", "pen")), false, false, 0.7, Qualification.fromString("unqualified"), "fountain pen", EmojiGroup.OBJECTS, EmojiSubGroup.WRITING, true);
+    public static final Emoji PEN = new Emoji("\ud83d\udd8a\ufe0f", "\\uD83D\\uDD8A\\uFE0F", Collections.unmodifiableList(Arrays.asList(":pen_ballpoint:", ":lower_left_ballpoint_pen:", ":pen:")), Collections.singletonList(":lower_left_ballpoint_pen:"), Collections.singletonList(":pen:"), Collections.unmodifiableList(Arrays.asList("ballpoint", "pen")), false, false, 0.7, Qualification.fromString("fully-qualified"), "pen", EmojiGroup.OBJECTS, EmojiSubGroup.WRITING, false);
+    public static final Emoji PEN_UNQUALIFIED = new Emoji("\ud83d\udd8a", "\\uD83D\\uDD8A", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.unmodifiableList(Arrays.asList("ballpoint", "pen")), false, false, 0.7, Qualification.fromString("unqualified"), "pen", EmojiGroup.OBJECTS, EmojiSubGroup.WRITING, true);
+    public static final Emoji PAINTBRUSH = new Emoji("\ud83d\udd8c\ufe0f", "\\uD83D\\uDD8C\\uFE0F", Collections.unmodifiableList(Arrays.asList(":paintbrush:", ":lower_left_paintbrush:")), Collections.singletonList(":lower_left_paintbrush:"), Collections.singletonList(":paintbrush:"), Collections.unmodifiableList(Arrays.asList("paintbrush", "painting")), false, false, 0.7, Qualification.fromString("fully-qualified"), "paintbrush", EmojiGroup.OBJECTS, EmojiSubGroup.WRITING, false);
+    public static final Emoji PAINTBRUSH_UNQUALIFIED = new Emoji("\ud83d\udd8c", "\\uD83D\\uDD8C", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.unmodifiableList(Arrays.asList("paintbrush", "painting")), false, false, 0.7, Qualification.fromString("unqualified"), "paintbrush", EmojiGroup.OBJECTS, EmojiSubGroup.WRITING, true);
+    public static final Emoji CRAYON = new Emoji("\ud83d\udd8d\ufe0f", "\\uD83D\\uDD8D\\uFE0F", Collections.unmodifiableList(Arrays.asList(":crayon:", ":lower_left_crayon:")), Collections.singletonList(":lower_left_crayon:"), Collections.singletonList(":crayon:"), Collections.singletonList("crayon"), false, false, 0.7, Qualification.fromString("fully-qualified"), "crayon", EmojiGroup.OBJECTS, EmojiSubGroup.WRITING, false);
+    public static final Emoji CRAYON_UNQUALIFIED = new Emoji("\ud83d\udd8d", "\\uD83D\\uDD8D", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.singletonList("crayon"), false, false, 0.7, Qualification.fromString("unqualified"), "crayon", EmojiGroup.OBJECTS, EmojiSubGroup.WRITING, true);
+    public static final Emoji MEMO = new Emoji("\ud83d\udcdd", "\\uD83D\\uDCDD", Collections.unmodifiableList(Arrays.asList(":pencil:", ":memo:")), Collections.unmodifiableList(Arrays.asList(":memo:", ":pencil:")), Collections.unmodifiableList(Arrays.asList(":memo:", ":pencil:")), Collections.unmodifiableList(Arrays.asList("communication", "media", "memo", "notes", "pencil")), false, false, 0.6, Qualification.fromString("fully-qualified"), "memo", EmojiGroup.OBJECTS, EmojiSubGroup.WRITING, false);
+}
+

@@ -1,0 +1,12 @@
+decompiled/com/hypherionmc/sdlink/api\accounts\DiscordAuthor.java
+decompiled/com/hypherionmc/sdlink/api\accounts\DiscordUser.java
+decompiled/com/hypherionmc/sdlink/api\accounts\MinecraftAccount.java
+decompiled/com/hypherionmc/sdlink/api\events\SDLinkReadyEvent.java
+decompiled/com/hypherionmc/sdlink/api\events\SlashCommandRegistrationEvent.java
+decompiled/com/hypherionmc/sdlink/api\events\VerificationEvent.java
+decompiled/com/hypherionmc/sdlink/api\messaging\MessageContext.java
+decompiled/com/hypherionmc/sdlink/api\messaging\MessageDestination.java
+decompiled/com/hypherionmc/sdlink/api\messaging\MessageType.java
+decompiled/com/hypherionmc/sdlink/api\messaging\Result.java
+decompiled/com/hypherionmc/sdlink/api\messaging\discord\DiscordMessage.java
+decompiled/com/hypherionmc/sdlink/api\messaging\discord\DiscordMessageBuilder.java

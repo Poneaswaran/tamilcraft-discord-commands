@@ -1,0 +1,114 @@
+/*
+ * Decompiled with CFR 0.152.
+ */
+package com.hypherionmc.sdlink.core.discord.commands.slash.setup;
+
+import com.hypherionmc.sdlink.api.messaging.Result;
+import com.hypherionmc.sdlink.core.config.SDLinkConfig;
+import com.hypherionmc.sdlink.core.discord.BotController;
+import com.hypherionmc.sdlink.core.discord.commands.slash.SDLinkSlashCommand;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.entities.channel.ChannelType;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.interactions.commands.Command;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.interactions.commands.OptionType;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.interactions.commands.build.OptionData;
+import com.hypherionmc.sdlink.shaded.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.hypherionmc.sdlink.util.EncryptionUtil;
+import com.hypherionmc.sdlink.util.translations.SDText;
+import java.util.ArrayList;
+
+public final class SetChannelCommand
+extends SDLinkSlashCommand {
+    public SetChannelCommand() {
+        super(true);
+        this.name = "setchannel";
+        this.help = SDText.translate("command.setchannel.help").toString();
+        this.guildOnly = true;
+        ArrayList<Command.Choice> choices = new ArrayList<Command.Choice>();
+        choices.add(new Command.Choice("Chat", "chat"));
+        choices.add(new Command.Choice("Events", "events"));
+        choices.add(new Command.Choice("Console", "console"));
+        ArrayList<OptionData> optionData = new ArrayList<OptionData>();
+        optionData.add(new OptionData(OptionType.CHANNEL, "channel", "The channel to set").setChannelTypes(ChannelType.TEXT, ChannelType.FORUM, ChannelType.GUILD_PUBLIC_THREAD, ChannelType.GUILD_PRIVATE_THREAD).setRequired(true));
+        optionData.add(new OptionData(OptionType.STRING, "type", "The type of channel to assign this channel to").addChoices(choices).setRequired(true));
+        optionData.add(new OptionData(OptionType.BOOLEAN, "webhook", "Create a webhook instead of using the channel").setRequired(true));
+        this.options = optionData;
+    }
+
+    @Override
+    protected void execute(SlashCommandEvent event) {
+        event.deferReply(SDLinkConfig.INSTANCE.botConfig.silentReplies).queue();
+        GuildMessageChannel channel = event.getOption("channel").getAsChannel().asGuildMessageChannel();
+        String type = event.getOption("type").getAsString();
+        boolean webhook = event.getOption("webhook").getAsBoolean();
+        if (!channel.canTalk()) {
+            event.getHook().sendMessage(SDText.translate("error.no_message_perms", channel.getAsMention()).toString()).setEphemeral(true).queue();
+            return;
+        }
+        Result result = webhook ? this.setWebhook((StandardGuildMessageChannel)channel, type) : this.setChannel(channel, type);
+        event.getHook().sendMessage(result.getMessage()).setEphemeral(SDLinkConfig.INSTANCE.botConfig.silentReplies).queue();
+    }
+
+    private Result setChannel(GuildMessageChannel channel, String type) {
+        try {
+            switch (type.toLowerCase()) {
+                case "chat": {
+                    SDLinkConfig.INSTANCE.channelsAndWebhooks.channels.chatChannelID = channel.getId();
+                    SDLinkConfig.INSTANCE.saveConfig((Object)SDLinkConfig.INSTANCE);
+                    break;
+                }
+                case "event": {
+                    SDLinkConfig.INSTANCE.channelsAndWebhooks.channels.eventsChannelID = channel.getId();
+                    SDLinkConfig.INSTANCE.saveConfig((Object)SDLinkConfig.INSTANCE);
+                    break;
+                }
+                case "console": {
+                    SDLinkConfig.INSTANCE.channelsAndWebhooks.channels.consoleChannelID = channel.getId();
+                    SDLinkConfig.INSTANCE.saveConfig((Object)SDLinkConfig.INSTANCE);
+                }
+            }
+            return Result.success(SDText.translate("command.setchannel.saved"));
+        }
+        catch (Exception e) {
+            BotController.INSTANCE.getLogger().error("Failed to save config", (Throwable)e);
+            return Result.error(SDText.translate("command.setchannel.failed", e.getMessage()));
+        }
+    }
+
+    private Result setWebhook(StandardGuildMessageChannel channel, String type) {
+        try {
+            switch (type.toLowerCase()) {
+                case "chat": {
+                    channel.createWebhook("SDLink " + type).queue(s -> {
+                        SDLinkConfig.INSTANCE.channelsAndWebhooks.webhooks.chatWebhook = EncryptionUtil.INSTANCE.encrypt(s.getUrl());
+                        SDLinkConfig.INSTANCE.channelsAndWebhooks.webhooks.enabled = true;
+                        SDLinkConfig.INSTANCE.saveConfig((Object)SDLinkConfig.INSTANCE);
+                    });
+                    break;
+                }
+                case "event": {
+                    channel.createWebhook("SDLink " + type).queue(s -> {
+                        SDLinkConfig.INSTANCE.channelsAndWebhooks.webhooks.eventsWebhook = EncryptionUtil.INSTANCE.encrypt(s.getUrl());
+                        SDLinkConfig.INSTANCE.channelsAndWebhooks.webhooks.enabled = true;
+                        SDLinkConfig.INSTANCE.saveConfig((Object)SDLinkConfig.INSTANCE);
+                    });
+                    break;
+                }
+                case "console": {
+                    channel.createWebhook("SDLink " + type).queue(s -> {
+                        SDLinkConfig.INSTANCE.channelsAndWebhooks.webhooks.consoleWebhook = EncryptionUtil.INSTANCE.encrypt(s.getUrl());
+                        SDLinkConfig.INSTANCE.channelsAndWebhooks.webhooks.enabled = true;
+                        SDLinkConfig.INSTANCE.saveConfig((Object)SDLinkConfig.INSTANCE);
+                    });
+                }
+            }
+            return Result.success(SDText.translate("command.setchannel.webhook_saved"));
+        }
+        catch (Exception e) {
+            BotController.INSTANCE.getLogger().error("Failed to save config", (Throwable)e);
+            return Result.error(SDText.translate("command.setchannel.failed", e.getMessage()));
+        }
+    }
+}
+

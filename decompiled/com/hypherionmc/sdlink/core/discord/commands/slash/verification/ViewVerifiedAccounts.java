@@ -1,0 +1,71 @@
+/*
+ * Decompiled with CFR 0.152.
+ */
+package com.hypherionmc.sdlink.core.discord.commands.slash.verification;
+
+import com.hypherionmc.sdlink.core.config.SDLinkConfig;
+import com.hypherionmc.sdlink.core.database.SDLinkAccount;
+import com.hypherionmc.sdlink.core.discord.BotController;
+import com.hypherionmc.sdlink.core.discord.commands.slash.SDLinkSlashCommand;
+import com.hypherionmc.sdlink.core.managers.DatabaseManager;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.EmbedBuilder;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.entities.Member;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.entities.Message;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.entities.MessageEmbed;
+import com.hypherionmc.sdlink.shaded.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.hypherionmc.sdlink.shaded.jagrosh.jdautilities.menu.ButtonEmbedPaginator;
+import com.hypherionmc.sdlink.util.MessageUtil;
+import com.hypherionmc.sdlink.util.translations.SDText;
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public final class ViewVerifiedAccounts
+extends SDLinkSlashCommand {
+    public ViewVerifiedAccounts() {
+        super(true);
+        this.name = "verifiedaccounts";
+        this.help = SDText.translate("command.verifiedaccounts.help").toString();
+    }
+
+    @Override
+    protected void execute(SlashCommandEvent event) {
+        event.deferReply(SDLinkConfig.INSTANCE.botConfig.silentReplies).queue();
+        try {
+            ButtonEmbedPaginator.Builder paginator = MessageUtil.defaultPaginator();
+            List<SDLinkAccount> accounts = DatabaseManager.INSTANCE.findAll(SDLinkAccount.class);
+            EmbedBuilder builder = new EmbedBuilder();
+            ArrayList<MessageEmbed> pages = new ArrayList<MessageEmbed>();
+            AtomicInteger count = new AtomicInteger();
+            if (accounts.isEmpty()) {
+                event.getHook().sendMessage(SDText.translate("command.verifiedaccounts.no_accounts").toString()).setEphemeral(true).queue();
+                return;
+            }
+            MessageUtil.listBatches(accounts, 10).forEach(itm -> {
+                count.getAndIncrement();
+                builder.clear();
+                builder.setTitle(SDText.translate("command.verifiedaccounts.title_page", count.get(), (int)Math.ceil((float)accounts.size() / 10.0f)).toString());
+                builder.setColor(Color.GREEN);
+                StringBuilder sBuilder = new StringBuilder();
+                itm.forEach(v -> {
+                    Member member = null;
+                    if (v.getDiscordID() != null && !v.getDiscordID().isEmpty()) {
+                        member = event.getGuild().getMemberById(v.getDiscordID());
+                    }
+                    sBuilder.append(v.getUsername()).append((String)(!v.getInGameName().equalsIgnoreCase(v.getUsername()) ? " (" + v.getInGameName() + " )" : "")).append(" -> ").append(member == null ? "Unlinked" : member.getAsMention()).append("\r\n");
+                });
+                builder.setDescription(sBuilder);
+                pages.add(builder.build());
+            });
+            paginator.setItems(pages);
+            ButtonEmbedPaginator embedPaginator = paginator.build();
+            event.getHook().sendMessageEmbeds(pages.get(0), new MessageEmbed[0]).setEphemeral(false).queue(success -> embedPaginator.paginate((Message)success, 1));
+        }
+        catch (Exception e) {
+            event.getHook().sendMessage(SDText.translate("error.command_failed").toString()).setEphemeral(SDLinkConfig.INSTANCE.botConfig.silentReplies).queue();
+            BotController.INSTANCE.getLogger().error("Failed to run verifiedaccounts command", (Throwable)e);
+        }
+    }
+}
+

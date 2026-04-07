@@ -1,0 +1,38 @@
+/*
+ * Decompiled with CFR 0.152.
+ * 
+ * Could not load the following classes:
+ *  org.jetbrains.annotations.NotNull
+ *  org.jetbrains.annotations.Nullable
+ */
+package com.hypherionmc.sdlink.shaded.okhttp3;
+
+import com.hypherionmc.sdlink.shaded.kotlin.Metadata;
+import com.hypherionmc.sdlink.shaded.okhttp3.Request;
+import com.hypherionmc.sdlink.shaded.okhttp3.WebSocketListener;
+import com.hypherionmc.sdlink.shaded.okio.ByteString;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+@Metadata(mv={1, 8, 0}, k=1, xi=48, d1={"\u00008\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\u0002\n\u0000\n\u0002\u0010\u000b\n\u0000\n\u0002\u0010\b\n\u0000\n\u0002\u0010\u000e\n\u0000\n\u0002\u0010\t\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\b\u0002\bf\u0018\u00002\u00020\u0001:\u0001\u0012J\b\u0010\u0002\u001a\u00020\u0003H&J\u001a\u0010\u0004\u001a\u00020\u00052\u0006\u0010\u0006\u001a\u00020\u00072\b\u0010\b\u001a\u0004\u0018\u00010\tH&J\b\u0010\n\u001a\u00020\u000bH&J\b\u0010\f\u001a\u00020\rH&J\u0010\u0010\u000e\u001a\u00020\u00052\u0006\u0010\u000f\u001a\u00020\tH&J\u0010\u0010\u000e\u001a\u00020\u00052\u0006\u0010\u0010\u001a\u00020\u0011H&\u00a8\u0006\u0013"}, d2={"Lcom/hypherionmc/sdlink/shaded/okhttp3/WebSocket;", "", "cancel", "", "close", "", "code", "", "reason", "", "queueSize", "", "request", "Lcom/hypherionmc/sdlink/shaded/okhttp3/Request;", "send", "text", "bytes", "Lcom/hypherionmc/sdlink/shaded/okio/ByteString;", "Factory", "okhttp"})
+public interface WebSocket {
+    @NotNull
+    public Request request();
+
+    public long queueSize();
+
+    public boolean send(@NotNull String var1);
+
+    public boolean send(@NotNull ByteString var1);
+
+    public boolean close(int var1, @Nullable String var2);
+
+    public void cancel();
+
+    @Metadata(mv={1, 8, 0}, k=1, xi=48, d1={"\u0000\u001c\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\b\u00e6\u0080\u0001\u0018\u00002\u00020\u0001J\u0018\u0010\u0002\u001a\u00020\u00032\u0006\u0010\u0004\u001a\u00020\u00052\u0006\u0010\u0006\u001a\u00020\u0007H&\u00a8\u0006\b"}, d2={"Lcom/hypherionmc/sdlink/shaded/okhttp3/WebSocket$Factory;", "", "newWebSocket", "Lcom/hypherionmc/sdlink/shaded/okhttp3/WebSocket;", "request", "Lcom/hypherionmc/sdlink/shaded/okhttp3/Request;", "listener", "Lcom/hypherionmc/sdlink/shaded/okhttp3/WebSocketListener;", "okhttp"})
+    public static interface Factory {
+        @NotNull
+        public WebSocket newWebSocket(@NotNull Request var1, @NotNull WebSocketListener var2);
+    }
+}
+

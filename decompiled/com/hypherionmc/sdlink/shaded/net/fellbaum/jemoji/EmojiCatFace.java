@@ -1,0 +1,24 @@
+/*
+ * Decompiled with CFR 0.152.
+ */
+package com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji;
+
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.Emoji;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.EmojiGroup;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.EmojiSubGroup;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.Qualification;
+import java.util.Arrays;
+import java.util.Collections;
+
+interface EmojiCatFace {
+    public static final Emoji GRINNING_CAT = new Emoji("\ud83d\ude3a", "\\uD83D\\uDE3A", Collections.unmodifiableList(Arrays.asList(":smiley_cat:", ":grinning_cat:")), Collections.singletonList(":smiley_cat:"), Collections.singletonList(":smiley_cat:"), Collections.unmodifiableList(Arrays.asList("animal", "cat", "face", "grinning", "mouth", "open", "smile", "smiling")), false, false, 0.6, Qualification.fromString("fully-qualified"), "grinning cat", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.CAT_FACE, false);
+    public static final Emoji GRINNING_CAT_WITH_SMILING_EYES = new Emoji("\ud83d\ude38", "\\uD83D\\uDE38", Collections.singletonList(":smile_cat:"), Collections.singletonList(":smile_cat:"), Collections.singletonList(":smile_cat:"), Collections.unmodifiableList(Arrays.asList("animal", "cat", "eye", "eyes", "face", "grin", "grinning", "smile", "smiling")), false, false, 0.6, Qualification.fromString("fully-qualified"), "grinning cat with smiling eyes", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.CAT_FACE, false);
+    public static final Emoji CAT_WITH_TEARS_OF_JOY = new Emoji("\ud83d\ude39", "\\uD83D\\uDE39", Collections.singletonList(":joy_cat:"), Collections.singletonList(":joy_cat:"), Collections.singletonList(":joy_cat:"), Collections.unmodifiableList(Arrays.asList("animal", "cat", "face", "joy", "laugh", "laughing", "lol", "tear", "tears")), false, false, 0.6, Qualification.fromString("fully-qualified"), "cat with tears of joy", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.CAT_FACE, false);
+    public static final Emoji SMILING_CAT_WITH_HEART_EYES = new Emoji("\ud83d\ude3b", "\\uD83D\\uDE3B", Collections.singletonList(":heart_eyes_cat:"), Collections.singletonList(":heart_eyes_cat:"), Collections.singletonList(":heart_eyes_cat:"), Collections.unmodifiableList(Arrays.asList("animal", "cat", "eye", "face", "heart", "heart-eyes", "love", "smile", "smiling")), false, false, 0.6, Qualification.fromString("fully-qualified"), "smiling cat with heart-eyes", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.CAT_FACE, false);
+    public static final Emoji CAT_WITH_WRY_SMILE = new Emoji("\ud83d\ude3c", "\\uD83D\\uDE3C", Collections.singletonList(":smirk_cat:"), Collections.singletonList(":smirk_cat:"), Collections.singletonList(":smirk_cat:"), Collections.unmodifiableList(Arrays.asList("animal", "cat", "face", "ironic", "smile", "wry")), false, false, 0.6, Qualification.fromString("fully-qualified"), "cat with wry smile", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.CAT_FACE, false);
+    public static final Emoji KISSING_CAT = new Emoji("\ud83d\ude3d", "\\uD83D\\uDE3D", Collections.singletonList(":kissing_cat:"), Collections.singletonList(":kissing_cat:"), Collections.singletonList(":kissing_cat:"), Collections.unmodifiableList(Arrays.asList("animal", "cat", "closed", "eye", "eyes", "face", "kiss", "kissing")), false, false, 0.6, Qualification.fromString("fully-qualified"), "kissing cat", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.CAT_FACE, false);
+    public static final Emoji WEARY_CAT = new Emoji("\ud83d\ude40", "\\uD83D\\uDE40", Collections.unmodifiableList(Arrays.asList(":scream_cat:", ":weary_cat:")), Collections.singletonList(":scream_cat:"), Collections.singletonList(":scream_cat:"), Collections.unmodifiableList(Arrays.asList("animal", "cat", "face", "oh", "surprised", "weary")), false, false, 0.6, Qualification.fromString("fully-qualified"), "weary cat", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.CAT_FACE, false);
+    public static final Emoji CRYING_CAT = new Emoji("\ud83d\ude3f", "\\uD83D\\uDE3F", Collections.unmodifiableList(Arrays.asList(":crying_cat_face:", ":crying_cat:")), Collections.singletonList(":crying_cat_face:"), Collections.singletonList(":crying_cat_face:"), Collections.unmodifiableList(Arrays.asList("animal", "cat", "cry", "crying", "face", "sad", "tear")), false, false, 0.6, Qualification.fromString("fully-qualified"), "crying cat", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.CAT_FACE, false);
+    public static final Emoji POUTING_CAT = new Emoji("\ud83d\ude3e", "\\uD83D\\uDE3E", Collections.singletonList(":pouting_cat:"), Collections.singletonList(":pouting_cat:"), Collections.singletonList(":pouting_cat:"), Collections.unmodifiableList(Arrays.asList("animal", "cat", "face", "pouting")), false, false, 0.6, Qualification.fromString("fully-qualified"), "pouting cat", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.CAT_FACE, false);
+}
+

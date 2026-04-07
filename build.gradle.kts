@@ -44,7 +44,7 @@ dependencies {
 	implementation("net.dv8tion:JDA:5.0.1") {
         exclude(module = "opus-java") 
     }
-    implementation("pw.chew:jda-chewtils:3.0.3")
+    implementation("pw.chew:jda-chewtils:2.2.1")
 	// Inject Simple Discord Link and CraterLib using your exact versions
 	implementation("com.hypherionmc.sdlink:sdlink:3.4.0")
 	modImplementation("com.hypherionmc.craterlib:CraterLib-Fabric-1.21:3.1.0")

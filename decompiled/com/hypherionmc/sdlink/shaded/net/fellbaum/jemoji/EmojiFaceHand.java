@@ -1,0 +1,22 @@
+/*
+ * Decompiled with CFR 0.152.
+ */
+package com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji;
+
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.Emoji;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.EmojiGroup;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.EmojiSubGroup;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.Qualification;
+import java.util.Arrays;
+import java.util.Collections;
+
+interface EmojiFaceHand {
+    public static final Emoji SMILING_FACE_WITH_OPEN_HANDS = new Emoji("\ud83e\udd17", "\\uD83E\\uDD17", Collections.unmodifiableList(Arrays.asList(":hugging:", ":hugging_face:")), Collections.singletonList(":hugging_face:"), Collections.singletonList(":hugs:"), Collections.unmodifiableList(Arrays.asList("face", "hands", "hug", "hugging", "open", "smiling")), false, false, 1.0, Qualification.fromString("fully-qualified"), "smiling face with open hands", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.FACE_HAND, false);
+    public static final Emoji FACE_WITH_HAND_OVER_MOUTH = new Emoji("\ud83e\udd2d", "\\uD83E\\uDD2D", Collections.singletonList(":face_with_hand_over_mouth:"), Collections.unmodifiableList(Arrays.asList(":face_with_hand_over_mouth:", ":smiling_face_with_smiling_eyes_and_hand_covering_mouth:")), Collections.singletonList(":hand_over_mouth:"), Collections.unmodifiableList(Arrays.asList("face", "giggle", "giggling", "hand", "mouth", "oops", "realization", "secret", "shock", "sudden", "surprise", "whoops")), false, false, 5.0, Qualification.fromString("fully-qualified"), "face with hand over mouth", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.FACE_HAND, false);
+    public static final Emoji FACE_WITH_OPEN_EYES_AND_HAND_OVER_MOUTH = new Emoji("\ud83e\udee2", "\\uD83E\\uDEE2", Collections.singletonList(":face_with_open_eyes_and_hand_over_mouth:"), Collections.singletonList(":face_with_open_eyes_and_hand_over_mouth:"), Collections.singletonList(":face_with_open_eyes_and_hand_over_mouth:"), Collections.unmodifiableList(Arrays.asList("amazement", "awe", "disbelief", "embarrass", "eyes", "face", "gasp", "hand", "mouth", "omg", "open", "over", "quiet", "scared", "shock", "surprise")), false, false, 14.0, Qualification.fromString("fully-qualified"), "face with open eyes and hand over mouth", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.FACE_HAND, false);
+    public static final Emoji FACE_WITH_PEEKING_EYE = new Emoji("\ud83e\udee3", "\\uD83E\\uDEE3", Collections.singletonList(":face_with_peeking_eye:"), Collections.singletonList(":face_with_peeking_eye:"), Collections.singletonList(":face_with_peeking_eye:"), Collections.unmodifiableList(Arrays.asList("captivated", "embarrass", "eye", "face", "hide", "hiding", "peek", "peeking", "peep", "scared", "shy", "stare")), false, false, 14.0, Qualification.fromString("fully-qualified"), "face with peeking eye", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.FACE_HAND, false);
+    public static final Emoji SHUSHING_FACE = new Emoji("\ud83e\udd2b", "\\uD83E\\uDD2B", Collections.singletonList(":shushing_face:"), Collections.unmodifiableList(Arrays.asList(":shushing_face:", ":face_with_finger_covering_closed_lips:")), Collections.singletonList(":shushing_face:"), Collections.unmodifiableList(Arrays.asList("face", "quiet", "shh", "shush", "shushing")), false, false, 5.0, Qualification.fromString("fully-qualified"), "shushing face", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.FACE_HAND, false);
+    public static final Emoji THINKING_FACE = new Emoji("\ud83e\udd14", "\\uD83E\\uDD14", Collections.unmodifiableList(Arrays.asList(":thinking:", ":thinking_face:")), Collections.singletonList(":thinking_face:"), Collections.singletonList(":thinking:"), Collections.unmodifiableList(Arrays.asList("chin", "consider", "face", "hmm", "ponder", "pondering", "thinking", "wondering")), false, false, 1.0, Qualification.fromString("fully-qualified"), "thinking face", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.FACE_HAND, false);
+    public static final Emoji SALUTING_FACE = new Emoji("\ud83e\udee1", "\\uD83E\\uDEE1", Collections.singletonList(":saluting_face:"), Collections.singletonList(":saluting_face:"), Collections.singletonList(":saluting_face:"), Collections.unmodifiableList(Arrays.asList("face", "good", "luck", "ma\u2019am", "OK", "respect", "salute", "saluting", "sir", "troops", "yes")), false, false, 14.0, Qualification.fromString("fully-qualified"), "saluting face", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.FACE_HAND, false);
+}
+

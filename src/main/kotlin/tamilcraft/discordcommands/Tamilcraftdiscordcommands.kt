@@ -4,41 +4,61 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.hypherionmc.craterlib.core.event.CraterEventBus
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint
 import net.fabricmc.loader.api.FabricLoader
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
+import net.minecraft.commands.Commands
+import net.minecraft.network.chat.Component
 import org.slf4j.LoggerFactory
 import java.io.File
 
-class DiscordCommandsMod : ModInitializer {
+class DiscordCommandsMod : ModInitializer, PreLaunchEntrypoint {
     private val logger = LoggerFactory.getLogger("tamilcraft-discord-commands")
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
-    private val configFile = File(FabricLoader.getInstance().configDir.toFile(), "tamilcraft-ip-config.json")
+    private val configFile = File(FabricLoader.getInstance().configDir.toFile(), "tamilcraft-discord-commands.json")
 
-    // A companion object is Kotlin's way of making variables "static" or globally accessible
     companion object {
-        var serverIp: String = "play.tamilcraft.in"
+        var db: DiscordCommandsDatabase = DiscordCommandsDatabase()
     }
 
-    override fun onInitialize() {
-        logger.info("Initializing Tamilcraft Discord Commands...")
-        
+    override fun onPreLaunch() {
+        logger.info("Running Tamilcraft Discord Commands PreLaunch...")
         loadDatabase()
         
         // Register your custom Discord events to the CraterLib Event Bus!
         CraterEventBus.INSTANCE.registerEventListener(DiscordEvents())
     }
 
+    override fun onInitialize() {
+        logger.info("Initializing Tamilcraft Discord Commands main...")
+
+        CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher, registryAccess, environment ->
+            dispatcher.register(Commands.literal("tc-discord")
+                .requires { source -> source.hasPermission(2) }
+                .then(Commands.literal("reload")
+                    .executes { context ->
+                        loadDatabase()
+                        context.source.sendSuccess({ Component.literal("Tamilcraft Discord Commands config reloaded! Run /discord reload to apply completely new commands to Discord.") }, false)
+                        1
+                    }
+                )
+            )
+        })
+    }
+
     private fun loadDatabase() {
         if (!configFile.exists()) {
             logger.info("No config database found, creating default...")
-            val defaultConfig = IpDatabase("play.tamilcraft.in")
+            val defaultConfig = DiscordCommandsDatabase()
             configFile.writeText(gson.toJson(defaultConfig))
-            serverIp = defaultConfig.ip
+            db = defaultConfig
         } else {
-            logger.info("Loading IP from database...")
-            val data = gson.fromJson(configFile.readText(), IpDatabase::class.java)
-            serverIp = data.ip
+            logger.info("Loading commands from database...")
+            try {
+                db = gson.fromJson(configFile.readText(), DiscordCommandsDatabase::class.java)
+            } catch (e: Exception) {
+                logger.error("Failed to load discord commands config!", e)
+            }
         }
     }
 }
-
-data class IpDatabase(val ip: String)
