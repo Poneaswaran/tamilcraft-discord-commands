@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.hypherionmc.craterlib.core.event.CraterEventBus
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.minecraft.commands.Commands
@@ -11,7 +12,7 @@ import net.minecraft.network.chat.Component
 import org.slf4j.LoggerFactory
 import java.io.File
 
-class DiscordCommandsMod : ModInitializer {
+class DiscordCommandsMod : ModInitializer, PreLaunchEntrypoint {
     private val logger = LoggerFactory.getLogger("tamilcraft-discord-commands")
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
     private val configFile = File(FabricLoader.getInstance().configDir.toFile(), "tamilcraft-discord-commands.json")
@@ -20,13 +21,16 @@ class DiscordCommandsMod : ModInitializer {
         var db: DiscordCommandsDatabase = DiscordCommandsDatabase()
     }
 
-    override fun onInitialize() {
-        logger.info("Initializing Tamilcraft Discord Commands...")
-        
+    override fun onPreLaunch() {
+        logger.info("Running Tamilcraft Discord Commands PreLaunch...")
         loadDatabase()
         
         // Register your custom Discord events to the CraterLib Event Bus!
         CraterEventBus.INSTANCE.registerEventListener(DiscordEvents())
+    }
+
+    override fun onInitialize() {
+        logger.info("Initializing Tamilcraft Discord Commands main...")
 
         CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher, registryAccess, environment ->
             dispatcher.register(Commands.literal("tc-discord")

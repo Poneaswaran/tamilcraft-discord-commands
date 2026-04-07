@@ -1,0 +1,23 @@
+/*
+ * Decompiled with CFR 0.152.
+ */
+package com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji;
+
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.Emoji;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.EmojiGroup;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.EmojiSubGroup;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.Qualification;
+import java.util.Arrays;
+import java.util.Collections;
+
+interface EmojiFaceCostume {
+    public static final Emoji PILE_OF_POO = new Emoji("\ud83d\udca9", "\\uD83D\\uDCA9", Collections.unmodifiableList(Arrays.asList(":poop:", ":shit:", ":hankey:", ":poo:", ":pile_of_poo:")), Collections.unmodifiableList(Arrays.asList(":hankey:", ":poop:", ":shit:")), Collections.unmodifiableList(Arrays.asList(":hankey:", ":poop:", ":shit:")), Collections.unmodifiableList(Arrays.asList("bs", "comic", "doo", "dung", "face", "fml", "monster", "pile", "poo", "poop", "smelly", "smh", "stink", "stinks", "stinky", "turd")), false, false, 0.6, Qualification.fromString("fully-qualified"), "pile of poo", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.FACE_COSTUME, false);
+    public static final Emoji CLOWN_FACE = new Emoji("\ud83e\udd21", "\\uD83E\\uDD21", Collections.unmodifiableList(Arrays.asList(":clown:", ":clown_face:")), Collections.singletonList(":clown_face:"), Collections.singletonList(":clown_face:"), Collections.unmodifiableList(Arrays.asList("clown", "face")), false, false, 3.0, Qualification.fromString("fully-qualified"), "clown face", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.FACE_COSTUME, false);
+    public static final Emoji OGRE = new Emoji("\ud83d\udc79", "\\uD83D\\uDC79", Collections.unmodifiableList(Arrays.asList(":japanese_ogre:", ":ogre:")), Collections.singletonList(":japanese_ogre:"), Collections.singletonList(":japanese_ogre:"), Collections.unmodifiableList(Arrays.asList("creature", "devil", "face", "fairy", "fairytale", "fantasy", "mask", "monster", "ogre", "scary", "tale")), false, false, 0.6, Qualification.fromString("fully-qualified"), "ogre", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.FACE_COSTUME, false);
+    public static final Emoji GOBLIN = new Emoji("\ud83d\udc7a", "\\uD83D\\uDC7A", Collections.unmodifiableList(Arrays.asList(":japanese_goblin:", ":goblin:")), Collections.singletonList(":japanese_goblin:"), Collections.singletonList(":japanese_goblin:"), Collections.unmodifiableList(Arrays.asList("angry", "creature", "face", "fairy", "fairytale", "fantasy", "goblin", "mask", "mean", "monster", "tale")), false, false, 0.6, Qualification.fromString("fully-qualified"), "goblin", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.FACE_COSTUME, false);
+    public static final Emoji GHOST = new Emoji("\ud83d\udc7b", "\\uD83D\\uDC7B", Collections.singletonList(":ghost:"), Collections.singletonList(":ghost:"), Collections.singletonList(":ghost:"), Collections.unmodifiableList(Arrays.asList("boo", "creature", "excited", "face", "fairy", "fairytale", "fantasy", "ghost", "halloween", "haunting", "monster", "scary", "silly", "tale")), false, false, 0.6, Qualification.fromString("fully-qualified"), "ghost", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.FACE_COSTUME, false);
+    public static final Emoji ALIEN = new Emoji("\ud83d\udc7d", "\\uD83D\\uDC7D", Collections.singletonList(":alien:"), Collections.singletonList(":alien:"), Collections.singletonList(":alien:"), Collections.unmodifiableList(Arrays.asList("alien", "creature", "extraterrestrial", "face", "fairy", "fairytale", "fantasy", "monster", "space", "tale", "ufo")), false, false, 0.6, Qualification.fromString("fully-qualified"), "alien", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.FACE_COSTUME, true);
+    public static final Emoji ALIEN_MONSTER = new Emoji("\ud83d\udc7e", "\\uD83D\\uDC7E", Collections.unmodifiableList(Arrays.asList(":space_invader:", ":alien_monster:")), Collections.singletonList(":space_invader:"), Collections.singletonList(":space_invader:"), Collections.unmodifiableList(Arrays.asList("alien", "creature", "extraterrestrial", "face", "fairy", "fairytale", "fantasy", "game", "gamer", "games", "monster", "pixelated", "space", "tale", "ufo")), false, false, 0.6, Qualification.fromString("fully-qualified"), "alien monster", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.FACE_COSTUME, false);
+    public static final Emoji ROBOT = new Emoji("\ud83e\udd16", "\\uD83E\\uDD16", Collections.unmodifiableList(Arrays.asList(":robot:", ":robot_face:")), Collections.singletonList(":robot_face:"), Collections.singletonList(":robot:"), Collections.unmodifiableList(Arrays.asList("face", "monster", "robot")), false, false, 1.0, Qualification.fromString("fully-qualified"), "robot", EmojiGroup.SMILEYS_AND_EMOTION, EmojiSubGroup.FACE_COSTUME, false);
+}
+

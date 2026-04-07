@@ -1,0 +1,41 @@
+/*
+ * Decompiled with CFR 0.152.
+ * 
+ * Could not load the following classes:
+ *  org.jetbrains.annotations.NotNull
+ */
+package com.hypherionmc.sdlink.shaded.kotlin;
+
+import com.hypherionmc.sdlink.shaded.kotlin.Metadata;
+import com.hypherionmc.sdlink.shaded.kotlin.enums.EnumEntries;
+import com.hypherionmc.sdlink.shaded.kotlin.enums.EnumEntriesKt;
+import org.jetbrains.annotations.NotNull;
+
+@Metadata(mv={1, 9, 0}, k=1, xi=48, d1={"\u0000\f\n\u0002\u0018\u0002\n\u0002\u0010\u0010\n\u0002\b\u0005\b\u0086\u0081\u0002\u0018\u00002\b\u0012\u0004\u0012\u00020\u00000\u0001B\u0007\b\u0002\u00a2\u0006\u0002\u0010\u0002j\u0002\b\u0003j\u0002\b\u0004j\u0002\b\u0005\u00a8\u0006\u0006"}, d2={"Lcom/hypherionmc/sdlink/shaded/kotlin/DeprecationLevel;", "", "(Ljava/lang/String;I)V", "WARNING", "ERROR", "HIDDEN", "com.hypherionmc.sdlink.shaded.kotlin-stdlib"})
+public final class DeprecationLevel
+extends Enum<DeprecationLevel> {
+    public static final /* enum */ DeprecationLevel WARNING = new DeprecationLevel();
+    public static final /* enum */ DeprecationLevel ERROR = new DeprecationLevel();
+    public static final /* enum */ DeprecationLevel HIDDEN = new DeprecationLevel();
+    private static final /* synthetic */ DeprecationLevel[] $VALUES;
+    private static final /* synthetic */ EnumEntries $ENTRIES;
+
+    public static DeprecationLevel[] values() {
+        return (DeprecationLevel[])$VALUES.clone();
+    }
+
+    public static DeprecationLevel valueOf(String value) {
+        return Enum.valueOf(DeprecationLevel.class, value);
+    }
+
+    @NotNull
+    public static EnumEntries<DeprecationLevel> getEntries() {
+        return $ENTRIES;
+    }
+
+    static {
+        $VALUES = deprecationLevelArray = new DeprecationLevel[]{DeprecationLevel.WARNING, DeprecationLevel.ERROR, DeprecationLevel.HIDDEN};
+        $ENTRIES = EnumEntriesKt.enumEntries((Enum[])$VALUES);
+    }
+}
+

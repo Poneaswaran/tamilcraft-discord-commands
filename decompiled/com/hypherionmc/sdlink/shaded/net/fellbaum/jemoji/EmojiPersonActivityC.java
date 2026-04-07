@@ -1,0 +1,21 @@
+/*
+ * Decompiled with CFR 0.152.
+ */
+package com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji;
+
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.Emoji;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.EmojiGroup;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.EmojiSubGroup;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.Qualification;
+import java.util.Arrays;
+import java.util.Collections;
+
+interface EmojiPersonActivityC {
+    public static final Emoji WOMAN_CLIMBING_MEDIUM_SKIN_TONE = new Emoji("\ud83e\uddd7\ud83c\udffd\u200d\u2640\ufe0f", "\\uD83E\\uDDD7\\uD83C\\uDFFD\\u200D\\u2640\\uFE0F", Collections.unmodifiableList(Arrays.asList(":woman_climbing_tone3:", ":woman_climbing_medium_skin_tone:", ":woman_climbing::skin-tone-3:")), Collections.singletonList(":woman_climbing::skin-tone-4:"), Collections.emptyList(), Collections.unmodifiableList(Arrays.asList("climb", "climber", "climbing", "medium skin tone", "mountain", "rock", "scale", "up", "woman")), true, false, 5.0, Qualification.fromString("fully-qualified"), "woman climbing: medium skin tone", EmojiGroup.PEOPLE_AND_BODY, EmojiSubGroup.PERSON_ACTIVITY, false);
+    public static final Emoji WOMAN_CLIMBING_MEDIUM_SKIN_TONE_MINIMALLY_QUALIFIED = new Emoji("\ud83e\uddd7\ud83c\udffd\u200d\u2640", "\\uD83E\\uDDD7\\uD83C\\uDFFD\\u200D\\u2640", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.unmodifiableList(Arrays.asList("climb", "climber", "climbing", "medium skin tone", "mountain", "rock", "scale", "up", "woman")), true, false, 5.0, Qualification.fromString("minimally-qualified"), "woman climbing: medium skin tone", EmojiGroup.PEOPLE_AND_BODY, EmojiSubGroup.PERSON_ACTIVITY, false);
+    public static final Emoji WOMAN_CLIMBING_MEDIUM_DARK_SKIN_TONE = new Emoji("\ud83e\uddd7\ud83c\udffe\u200d\u2640\ufe0f", "\\uD83E\\uDDD7\\uD83C\\uDFFE\\u200D\\u2640\\uFE0F", Collections.unmodifiableList(Arrays.asList(":woman_climbing_tone4:", ":woman_climbing_medium_dark_skin_tone:", ":woman_climbing::skin-tone-4:")), Collections.singletonList(":woman_climbing::skin-tone-5:"), Collections.emptyList(), Collections.unmodifiableList(Arrays.asList("climb", "climber", "climbing", "medium-dark skin tone", "mountain", "rock", "scale", "up", "woman")), true, false, 5.0, Qualification.fromString("fully-qualified"), "woman climbing: medium-dark skin tone", EmojiGroup.PEOPLE_AND_BODY, EmojiSubGroup.PERSON_ACTIVITY, false);
+    public static final Emoji WOMAN_CLIMBING_MEDIUM_DARK_SKIN_TONE_MINIMALLY_QUALIFIED = new Emoji("\ud83e\uddd7\ud83c\udffe\u200d\u2640", "\\uD83E\\uDDD7\\uD83C\\uDFFE\\u200D\\u2640", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.unmodifiableList(Arrays.asList("climb", "climber", "climbing", "medium-dark skin tone", "mountain", "rock", "scale", "up", "woman")), true, false, 5.0, Qualification.fromString("minimally-qualified"), "woman climbing: medium-dark skin tone", EmojiGroup.PEOPLE_AND_BODY, EmojiSubGroup.PERSON_ACTIVITY, false);
+    public static final Emoji WOMAN_CLIMBING_DARK_SKIN_TONE = new Emoji("\ud83e\uddd7\ud83c\udfff\u200d\u2640\ufe0f", "\\uD83E\\uDDD7\\uD83C\\uDFFF\\u200D\\u2640\\uFE0F", Collections.unmodifiableList(Arrays.asList(":woman_climbing_tone5:", ":woman_climbing_dark_skin_tone:", ":woman_climbing::skin-tone-5:")), Collections.singletonList(":woman_climbing::skin-tone-6:"), Collections.emptyList(), Collections.unmodifiableList(Arrays.asList("climb", "climber", "climbing", "dark skin tone", "mountain", "rock", "scale", "up", "woman")), true, false, 5.0, Qualification.fromString("fully-qualified"), "woman climbing: dark skin tone", EmojiGroup.PEOPLE_AND_BODY, EmojiSubGroup.PERSON_ACTIVITY, false);
+    public static final Emoji WOMAN_CLIMBING_DARK_SKIN_TONE_MINIMALLY_QUALIFIED = new Emoji("\ud83e\uddd7\ud83c\udfff\u200d\u2640", "\\uD83E\\uDDD7\\uD83C\\uDFFF\\u200D\\u2640", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.unmodifiableList(Arrays.asList("climb", "climber", "climbing", "dark skin tone", "mountain", "rock", "scale", "up", "woman")), true, false, 5.0, Qualification.fromString("minimally-qualified"), "woman climbing: dark skin tone", EmojiGroup.PEOPLE_AND_BODY, EmojiSubGroup.PERSON_ACTIVITY, false);
+}
+

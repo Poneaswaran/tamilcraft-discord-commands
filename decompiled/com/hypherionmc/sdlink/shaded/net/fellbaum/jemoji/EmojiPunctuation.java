@@ -1,0 +1,25 @@
+/*
+ * Decompiled with CFR 0.152.
+ */
+package com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji;
+
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.Emoji;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.EmojiGroup;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.EmojiSubGroup;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.Qualification;
+import java.util.Arrays;
+import java.util.Collections;
+
+interface EmojiPunctuation {
+    public static final Emoji DOUBLE_EXCLAMATION_MARK = new Emoji("\u203c\ufe0f", "\\u203C\\uFE0F", Collections.singletonList(":bangbang:"), Collections.singletonList(":bangbang:"), Collections.singletonList(":bangbang:"), Collections.unmodifiableList(Arrays.asList("!", "!!", "bangbang", "double", "exclamation", "mark", "punctuation")), false, false, 0.6, Qualification.fromString("fully-qualified"), "double exclamation mark", EmojiGroup.SYMBOLS, EmojiSubGroup.PUNCTUATION, false);
+    public static final Emoji DOUBLE_EXCLAMATION_MARK_UNQUALIFIED = new Emoji("\u203c", "\\u203C", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.unmodifiableList(Arrays.asList("!", "!!", "bangbang", "double", "exclamation", "mark", "punctuation")), false, false, 0.6, Qualification.fromString("unqualified"), "double exclamation mark", EmojiGroup.SYMBOLS, EmojiSubGroup.PUNCTUATION, true);
+    public static final Emoji EXCLAMATION_QUESTION_MARK = new Emoji("\u2049\ufe0f", "\\u2049\\uFE0F", Collections.singletonList(":interrobang:"), Collections.singletonList(":interrobang:"), Collections.singletonList(":interrobang:"), Collections.unmodifiableList(Arrays.asList("!", "!?", "?", "exclamation", "interrobang", "mark", "punctuation", "question")), false, false, 0.6, Qualification.fromString("fully-qualified"), "exclamation question mark", EmojiGroup.SYMBOLS, EmojiSubGroup.PUNCTUATION, false);
+    public static final Emoji EXCLAMATION_QUESTION_MARK_UNQUALIFIED = new Emoji("\u2049", "\\u2049", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.unmodifiableList(Arrays.asList("!", "!?", "?", "exclamation", "interrobang", "mark", "punctuation", "question")), false, false, 0.6, Qualification.fromString("unqualified"), "exclamation question mark", EmojiGroup.SYMBOLS, EmojiSubGroup.PUNCTUATION, true);
+    public static final Emoji RED_QUESTION_MARK = new Emoji("\u2753", "\\u2753", Collections.unmodifiableList(Arrays.asList(":question:", ":question_mark:")), Collections.singletonList(":question:"), Collections.singletonList(":question:"), Collections.unmodifiableList(Arrays.asList("?", "mark", "punctuation", "question", "red")), false, false, 0.6, Qualification.fromString("fully-qualified"), "red question mark", EmojiGroup.SYMBOLS, EmojiSubGroup.PUNCTUATION, true);
+    public static final Emoji WHITE_QUESTION_MARK = new Emoji("\u2754", "\\u2754", Collections.singletonList(":grey_question:"), Collections.singletonList(":grey_question:"), Collections.singletonList(":grey_question:"), Collections.unmodifiableList(Arrays.asList("?", "mark", "outlined", "punctuation", "question", "white")), false, false, 0.6, Qualification.fromString("fully-qualified"), "white question mark", EmojiGroup.SYMBOLS, EmojiSubGroup.PUNCTUATION, true);
+    public static final Emoji WHITE_EXCLAMATION_MARK = new Emoji("\u2755", "\\u2755", Collections.singletonList(":grey_exclamation:"), Collections.singletonList(":grey_exclamation:"), Collections.singletonList(":grey_exclamation:"), Collections.unmodifiableList(Arrays.asList("!", "exclamation", "mark", "outlined", "punctuation", "white")), false, false, 0.6, Qualification.fromString("fully-qualified"), "white exclamation mark", EmojiGroup.SYMBOLS, EmojiSubGroup.PUNCTUATION, true);
+    public static final Emoji RED_EXCLAMATION_MARK = new Emoji("\u2757", "\\u2757", Collections.singletonList(":exclamation:"), Collections.unmodifiableList(Arrays.asList(":exclamation:", ":heavy_exclamation_mark:")), Collections.unmodifiableList(Arrays.asList(":exclamation:", ":heavy_exclamation_mark:")), Collections.unmodifiableList(Arrays.asList("!", "exclamation", "mark", "punctuation", "red")), false, false, 0.6, Qualification.fromString("fully-qualified"), "red exclamation mark", EmojiGroup.SYMBOLS, EmojiSubGroup.PUNCTUATION, true);
+    public static final Emoji WAVY_DASH = new Emoji("\u3030\ufe0f", "\\u3030\\uFE0F", Collections.singletonList(":wavy_dash:"), Collections.singletonList(":wavy_dash:"), Collections.singletonList(":wavy_dash:"), Collections.unmodifiableList(Arrays.asList("dash", "punctuation", "wavy")), false, false, 0.6, Qualification.fromString("fully-qualified"), "wavy dash", EmojiGroup.SYMBOLS, EmojiSubGroup.PUNCTUATION, false);
+    public static final Emoji WAVY_DASH_UNQUALIFIED = new Emoji("\u3030", "\\u3030", Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.unmodifiableList(Arrays.asList("dash", "punctuation", "wavy")), false, false, 0.6, Qualification.fromString("unqualified"), "wavy dash", EmojiGroup.SYMBOLS, EmojiSubGroup.PUNCTUATION, true);
+}
+

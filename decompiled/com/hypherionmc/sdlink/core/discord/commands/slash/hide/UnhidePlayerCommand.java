@@ -1,0 +1,58 @@
+/*
+ * Decompiled with CFR 0.152.
+ */
+package com.hypherionmc.sdlink.core.discord.commands.slash.hide;
+
+import com.hypherionmc.sdlink.api.messaging.Result;
+import com.hypherionmc.sdlink.core.config.SDLinkConfig;
+import com.hypherionmc.sdlink.core.database.SDLinkAccount;
+import com.hypherionmc.sdlink.core.discord.commands.slash.SDLinkSlashCommand;
+import com.hypherionmc.sdlink.core.managers.DatabaseManager;
+import com.hypherionmc.sdlink.core.managers.HiddenPlayersManager;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.entities.User;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.interactions.commands.OptionType;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.interactions.commands.build.OptionData;
+import com.hypherionmc.sdlink.shaded.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.hypherionmc.sdlink.util.translations.SDText;
+import java.util.ArrayList;
+import java.util.List;
+
+public final class UnhidePlayerCommand
+extends SDLinkSlashCommand {
+    public UnhidePlayerCommand() {
+        super(true);
+        this.name = "unhideplayer";
+        this.help = SDText.translate("command.unhideplayer.help").toString();
+        this.options = new ArrayList<OptionData>(){
+            {
+                this.add(new OptionData(OptionType.USER, "user", "The user to make visible").setRequired(true));
+                this.add(new OptionData(OptionType.BOOLEAN, "minecraft", "Unhide the user in minecraft if they have a linked account").setRequired(false));
+            }
+        };
+    }
+
+    @Override
+    protected void execute(SlashCommandEvent event) {
+        boolean mc;
+        event.deferReply(SDLinkConfig.INSTANCE.botConfig.silentReplies).queue();
+        User user = event.getOption("user").getAsUser();
+        boolean bl = mc = event.hasOption("minecraft") && event.getOption("minecraft").getAsBoolean();
+        if (mc) {
+            if (!SDLinkConfig.INSTANCE.accessControl.enabled && !SDLinkConfig.INSTANCE.accessControl.optionalVerification) {
+                event.getHook().editOriginal(SDText.translate("command.hideplayer.access_control").toString()).queue();
+                return;
+            }
+            List<SDLinkAccount> accounts = DatabaseManager.INSTANCE.getCollection(SDLinkAccount.class).stream().filter(a -> a.getDiscordID() != null && a.getDiscordID().equalsIgnoreCase(user.getId())).toList();
+            if (accounts.isEmpty()) {
+                event.getHook().editOriginal(SDText.translate("command.hideplayer.account_not_found", user.getAsMention()).toString()).queue();
+            } else {
+                for (SDLinkAccount account : accounts) {
+                    HiddenPlayersManager.INSTANCE.unhidePlayer(account.getUuid());
+                }
+            }
+        }
+        Result res = HiddenPlayersManager.INSTANCE.unhidePlayer(user.getId());
+        event.getHook().editOriginal(res.getMessage()).queue();
+    }
+}
+

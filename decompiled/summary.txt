@@ -1,0 +1,225 @@
+Summary for sdlink_cache.jar
+Decompiled with CFR 0.152
+
+
+com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.EmojiLoader
+----------------------------
+
+readFileAsString(java.lang.String )
+  Exception : org.benf.cfr.reader.util.ConfusedCFRException: Started 5 blocks at once
+
+
+com.hypherionmc.sdlink.shaded.fasterxml.jackson.databind.ObjectMapper
+----------------------------
+
+writeValueAsString(java.lang.Object )
+  Exception : org.benf.cfr.reader.util.ConfusedCFRException: Started 2 blocks at once
+writeValueAsBytes(java.lang.Object )
+  Exception : org.benf.cfr.reader.util.ConfusedCFRException: Started 2 blocks at once
+
+
+com.hypherionmc.sdlink.shaded.fasterxml.jackson.databind.ObjectWriter
+----------------------------
+
+writeValueAsString(java.lang.Object )
+  Exception : org.benf.cfr.reader.util.ConfusedCFRException: Started 2 blocks at once
+writeValueAsBytes(java.lang.Object )
+  Exception : org.benf.cfr.reader.util.ConfusedCFRException: Started 2 blocks at once
+
+
+com.hypherionmc.sdlink.shaded.fasterxml.jackson.databind.type.TypeFactory
+----------------------------
+
+constructSpecializedType(com.hypherionmc.sdlink.shaded.fasterxml.jackson.databind.JavaType java.lang.Class<?> boolean )
+  Unable to fully structure code
+
+
+com.hypherionmc.sdlink.shaded.fasterxml.jackson.core.io.UTF8Writer
+----------------------------
+
+write(char[] int int )
+  Unable to fully structure code
+write(java.lang.String int int )
+  Unable to fully structure code
+
+
+com.hypherionmc.sdlink.shaded.okhttp3.internal.connection.ExchangeFinder
+----------------------------
+
+findConnection(int int int int boolean )
+  Unable to fully structure code
+
+
+com.hypherionmc.sdlink.shaded.okhttp3.internal.publicsuffix.PublicSuffixDatabase
+----------------------------
+
+readTheListUninterruptibly()
+  Exception : org.benf.cfr.reader.util.ConfusedCFRException: Tried to end blocks [3[CATCHBLOCK]], but top level block is 2[TRYBLOCK]
+
+
+com.hypherionmc.sdlink.shaded.okhttp3.internal.http.RetryAndFollowUpInterceptor
+----------------------------
+
+intercept(com.hypherionmc.sdlink.shaded.okhttp3.Interceptor$Chain )
+  Exception : org.benf.cfr.reader.util.ConfusedCFRException: Started 2 blocks at once
+
+
+com.hypherionmc.sdlink.shaded.okhttp3.internal.concurrent.TaskRunner
+----------------------------
+
+run()
+  Unable to fully structure code
+
+
+com.hypherionmc.sdlink.shaded.okhttp3.internal.Util
+----------------------------
+
+isCivilized(com.hypherionmc.sdlink.shaded.okhttp3.internal.io.FileSystem java.io.File )
+  Exception : org.benf.cfr.reader.util.ConfusedCFRException: Started 2 blocks at once
+
+
+com.hypherionmc.sdlink.shaded.okhttp3.Headers
+----------------------------
+
+checkValue(java.lang.String java.lang.String )
+  Unable to fully structure code
+
+
+com.hypherionmc.sdlink.shaded.okhttp3.Cookie
+----------------------------
+
+dateCharacterOffset(java.lang.String int int boolean )
+  Unable to fully structure code
+
+
+com.hypherionmc.sdlink.shaded.okio.FileSystem
+----------------------------
+
+-read(com.hypherionmc.sdlink.shaded.okio.Path com.hypherionmc.sdlink.shaded.kotlin.jvm.functions.Function1<? super com.hypherionmc.sdlink.shaded.okio.BufferedSource, ? extends T> )
+  Loose catch block
+-write(com.hypherionmc.sdlink.shaded.okio.Path boolean com.hypherionmc.sdlink.shaded.kotlin.jvm.functions.Function1<? super com.hypherionmc.sdlink.shaded.okio.BufferedSink, ? extends T> )
+  Loose catch block
+-write$default(com.hypherionmc.sdlink.shaded.okio.FileSystem com.hypherionmc.sdlink.shaded.okio.Path boolean com.hypherionmc.sdlink.shaded.kotlin.jvm.functions.Function1 int java.lang.Object )
+  Loose catch block
+
+
+com.hypherionmc.sdlink.shaded.okio.Okio__OkioKt
+----------------------------
+
+use(T com.hypherionmc.sdlink.shaded.kotlin.jvm.functions.Function1<? super T, ? extends R> )
+  Loose catch block
+
+
+com.hypherionmc.sdlink.shaded.okio.PeekSource
+----------------------------
+
+read(com.hypherionmc.sdlink.shaded.okio.Buffer long )
+  Unable to fully structure code
+
+
+com.hypherionmc.sdlink.shaded.okio.Utf8
+----------------------------
+
+processUtf8CodePoints(byte[] int int com.hypherionmc.sdlink.shaded.kotlin.jvm.functions.Function1<? super java.lang.Integer, com.hypherionmc.sdlink.shaded.kotlin.Unit> )
+  Unable to fully structure code
+processUtf16Chars(byte[] int int com.hypherionmc.sdlink.shaded.kotlin.jvm.functions.Function1<? super java.lang.Character, com.hypherionmc.sdlink.shaded.kotlin.Unit> )
+  Unable to fully structure code
+
+
+com.hypherionmc.sdlink.shaded.okio.ZipFileSystem
+----------------------------
+
+metadataOrNull(com.hypherionmc.sdlink.shaded.okio.Path )
+  Loose catch block
+source(com.hypherionmc.sdlink.shaded.okio.Path )
+  Loose catch block
+
+
+com.hypherionmc.sdlink.shaded.okio.internal.-ByteString
+----------------------------
+
+codePointIndexToCharIndex(byte[] int )
+  Unable to fully structure code
+
+
+com.hypherionmc.sdlink.shaded.okio.internal.-FileSystem
+----------------------------
+
+commonCopy(com.hypherionmc.sdlink.shaded.okio.FileSystem com.hypherionmc.sdlink.shaded.okio.Path com.hypherionmc.sdlink.shaded.okio.Path )
+  Loose catch block
+invokeSuspend(java.lang.Object )
+  Unable to fully structure code
+collectRecursively(com.hypherionmc.sdlink.shaded.kotlin.sequences.SequenceScope<? super com.hypherionmc.sdlink.shaded.okio.Path> com.hypherionmc.sdlink.shaded.okio.FileSystem com.hypherionmc.sdlink.shaded.kotlin.collections.ArrayDeque<com.hypherionmc.sdlink.shaded.okio.Path> com.hypherionmc.sdlink.shaded.okio.Path boolean boolean com.hypherionmc.sdlink.shaded.kotlin.coroutines.Continuation<? super com.hypherionmc.sdlink.shaded.kotlin.Unit> )
+  Unable to fully structure code
+
+
+com.hypherionmc.sdlink.shaded.kotlin.collections.SlidingWindowKt
+----------------------------
+
+invokeSuspend(java.lang.Object )
+  Unable to fully structure code
+
+
+com.hypherionmc.sdlink.shaded.kotlin.internal.PlatformImplementations
+----------------------------
+
+<clinit>()
+  Unable to fully structure code
+
+
+com.hypherionmc.sdlink.shaded.kotlin.jvm.JvmClassMappingKt
+----------------------------
+
+getJavaObjectType(com.hypherionmc.sdlink.shaded.kotlin.reflect.KClass<T> )
+  Unable to fully structure code
+  Could not resolve type clashes
+
+
+com.hypherionmc.sdlink.shaded.kotlin.sequences.SequencesKt__SequencesKt
+----------------------------
+
+invokeSuspend(java.lang.Object )
+  Unable to fully structure code
+invokeSuspend(java.lang.Object )
+  Unable to fully structure code
+
+
+com.hypherionmc.sdlink.shaded.kotlin.sequences.SequencesKt___SequencesKt
+----------------------------
+
+invokeSuspend(java.lang.Object )
+  Unable to fully structure code
+invokeSuspend(java.lang.Object )
+  Unable to fully structure code
+invokeSuspend(java.lang.Object )
+  Unable to fully structure code
+invokeSuspend(java.lang.Object )
+  Unable to fully structure code
+invokeSuspend(java.lang.Object )
+  Unable to fully structure code
+  Could not resolve type clashes
+
+
+com.hypherionmc.sdlink.shaded.kotlin.text.DelimitedRangesSequence
+----------------------------
+
+calcNext()
+  Unable to fully structure code
+
+
+com.hypherionmc.sdlink.shaded.kotlin.text.Regex
+----------------------------
+
+invoke(java.lang.Enum )
+  Ignored method signature, as it can't be verified against descriptor
+invokeSuspend(java.lang.Object )
+  Unable to fully structure code
+
+
+com.hypherionmc.sdlink.shaded.kotlin.io.path.PathTreeWalk
+----------------------------
+
+invokeSuspend(java.lang.Object )
+  Unable to fully structure code
+invokeSuspend(java.lang.Object )
+  Unable to fully structure code

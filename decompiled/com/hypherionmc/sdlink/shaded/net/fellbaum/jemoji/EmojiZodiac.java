@@ -1,0 +1,28 @@
+/*
+ * Decompiled with CFR 0.152.
+ */
+package com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji;
+
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.Emoji;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.EmojiGroup;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.EmojiSubGroup;
+import com.hypherionmc.sdlink.shaded.net.fellbaum.jemoji.Qualification;
+import java.util.Arrays;
+import java.util.Collections;
+
+interface EmojiZodiac {
+    public static final Emoji ARIES = new Emoji("\u2648", "\\u2648", Collections.singletonList(":aries:"), Collections.singletonList(":aries:"), Collections.singletonList(":aries:"), Collections.unmodifiableList(Arrays.asList("Aries", "horoscope", "ram", "zodiac")), false, false, 0.6, Qualification.fromString("fully-qualified"), "Aries", EmojiGroup.SYMBOLS, EmojiSubGroup.ZODIAC, true);
+    public static final Emoji TAURUS = new Emoji("\u2649", "\\u2649", Collections.singletonList(":taurus:"), Collections.singletonList(":taurus:"), Collections.singletonList(":taurus:"), Collections.unmodifiableList(Arrays.asList("bull", "horoscope", "ox", "Taurus", "zodiac")), false, false, 0.6, Qualification.fromString("fully-qualified"), "Taurus", EmojiGroup.SYMBOLS, EmojiSubGroup.ZODIAC, true);
+    public static final Emoji GEMINI = new Emoji("\u264a", "\\u264A", Collections.singletonList(":gemini:"), Collections.singletonList(":gemini:"), Collections.singletonList(":gemini:"), Collections.unmodifiableList(Arrays.asList("Gemini", "horoscope", "twins", "zodiac")), false, false, 0.6, Qualification.fromString("fully-qualified"), "Gemini", EmojiGroup.SYMBOLS, EmojiSubGroup.ZODIAC, true);
+    public static final Emoji CANCER = new Emoji("\u264b", "\\u264B", Collections.singletonList(":cancer:"), Collections.singletonList(":cancer:"), Collections.singletonList(":cancer:"), Collections.unmodifiableList(Arrays.asList("Cancer", "crab", "horoscope", "zodiac")), false, false, 0.6, Qualification.fromString("fully-qualified"), "Cancer", EmojiGroup.SYMBOLS, EmojiSubGroup.ZODIAC, true);
+    public static final Emoji LEO = new Emoji("\u264c", "\\u264C", Collections.singletonList(":leo:"), Collections.singletonList(":leo:"), Collections.singletonList(":leo:"), Collections.unmodifiableList(Arrays.asList("horoscope", "Leo", "lion", "zodiac")), false, false, 0.6, Qualification.fromString("fully-qualified"), "Leo", EmojiGroup.SYMBOLS, EmojiSubGroup.ZODIAC, true);
+    public static final Emoji VIRGO = new Emoji("\u264d", "\\u264D", Collections.singletonList(":virgo:"), Collections.singletonList(":virgo:"), Collections.singletonList(":virgo:"), Collections.unmodifiableList(Arrays.asList("horoscope", "Virgo", "zodiac")), false, false, 0.6, Qualification.fromString("fully-qualified"), "Virgo", EmojiGroup.SYMBOLS, EmojiSubGroup.ZODIAC, true);
+    public static final Emoji LIBRA = new Emoji("\u264e", "\\u264E", Collections.singletonList(":libra:"), Collections.singletonList(":libra:"), Collections.singletonList(":libra:"), Collections.unmodifiableList(Arrays.asList("balance", "horoscope", "justice", "Libra", "scales", "zodiac")), false, false, 0.6, Qualification.fromString("fully-qualified"), "Libra", EmojiGroup.SYMBOLS, EmojiSubGroup.ZODIAC, true);
+    public static final Emoji SCORPIO = new Emoji("\u264f", "\\u264F", Collections.unmodifiableList(Arrays.asList(":scorpius:", ":scorpio:")), Collections.singletonList(":scorpius:"), Collections.singletonList(":scorpius:"), Collections.unmodifiableList(Arrays.asList("horoscope", "Scorpio", "scorpion", "Scorpius", "zodiac")), false, false, 0.6, Qualification.fromString("fully-qualified"), "Scorpio", EmojiGroup.SYMBOLS, EmojiSubGroup.ZODIAC, true);
+    public static final Emoji SAGITTARIUS = new Emoji("\u2650", "\\u2650", Collections.singletonList(":sagittarius:"), Collections.singletonList(":sagittarius:"), Collections.singletonList(":sagittarius:"), Collections.unmodifiableList(Arrays.asList("archer", "horoscope", "Sagittarius", "zodiac")), false, false, 0.6, Qualification.fromString("fully-qualified"), "Sagittarius", EmojiGroup.SYMBOLS, EmojiSubGroup.ZODIAC, true);
+    public static final Emoji CAPRICORN = new Emoji("\u2651", "\\u2651", Collections.singletonList(":capricorn:"), Collections.singletonList(":capricorn:"), Collections.singletonList(":capricorn:"), Collections.unmodifiableList(Arrays.asList("Capricorn", "goat", "horoscope", "zodiac")), false, false, 0.6, Qualification.fromString("fully-qualified"), "Capricorn", EmojiGroup.SYMBOLS, EmojiSubGroup.ZODIAC, true);
+    public static final Emoji AQUARIUS = new Emoji("\u2652", "\\u2652", Collections.singletonList(":aquarius:"), Collections.singletonList(":aquarius:"), Collections.singletonList(":aquarius:"), Collections.unmodifiableList(Arrays.asList("Aquarius", "bearer", "horoscope", "water", "zodiac")), false, false, 0.6, Qualification.fromString("fully-qualified"), "Aquarius", EmojiGroup.SYMBOLS, EmojiSubGroup.ZODIAC, true);
+    public static final Emoji PISCES = new Emoji("\u2653", "\\u2653", Collections.singletonList(":pisces:"), Collections.singletonList(":pisces:"), Collections.singletonList(":pisces:"), Collections.unmodifiableList(Arrays.asList("fish", "horoscope", "Pisces", "zodiac")), false, false, 0.6, Qualification.fromString("fully-qualified"), "Pisces", EmojiGroup.SYMBOLS, EmojiSubGroup.ZODIAC, true);
+    public static final Emoji OPHIUCHUS = new Emoji("\u26ce", "\\u26CE", Collections.singletonList(":ophiuchus:"), Collections.singletonList(":ophiuchus:"), Collections.singletonList(":ophiuchus:"), Collections.unmodifiableList(Arrays.asList("bearer", "Ophiuchus", "serpent", "snake", "zodiac")), false, false, 0.6, Qualification.fromString("fully-qualified"), "Ophiuchus", EmojiGroup.SYMBOLS, EmojiSubGroup.ZODIAC, true);
+}
+

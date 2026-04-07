@@ -15,6 +15,12 @@
 	"icon": "assets/tamilcraft-discord-commands/icon.png",
 	"environment": "*",
 	"entrypoints": {
+		"preLaunch": [
+			{
+				"value": "tamilcraft.discordcommands.DiscordCommandsMod",
+				"adapter": "kotlin"
+			}
+		],
 		"main": [
 			{
 				"value": "tamilcraft.discordcommands.DiscordCommandsMod",
