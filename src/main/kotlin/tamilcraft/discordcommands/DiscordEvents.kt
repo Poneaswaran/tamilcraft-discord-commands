@@ -31,7 +31,10 @@ class DiscordEvents {
                 // Fetch the commands directly from database and match plain text
                 val commands = DiscordCommandsMod.db.commands
                 for (cmd in commands) {
-                    if (msg == cmd.name.lowercase()) {
+                    // Use a regex with word boundaries "\b" so "skip" doesn't trigger "ip"
+                    val regex = "\\b${cmd.name.lowercase()}\\b".toRegex()
+                    
+                    if (regex.containsMatchIn(msg)) {
                         logger.info("Triggered text command for '${cmd.name}' by ${e.author.name}")
                         e.channel.sendMessage(cmd.replyMessage).queue()
                         break
