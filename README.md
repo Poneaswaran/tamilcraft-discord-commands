@@ -7,6 +7,7 @@ A lightweight Fabric server-side mod designed to seamlessly link your Minecraft 
 - **Dynamic Command Configuration**: Create and manage Discord commands entirely through a simple JSON configuration file.
 - **Dual Triggers**: Commands added will automatically work as natively integrated **Slash Commands** (`/ip`), as well as **Text Triggers** (e.g., if a user types the word "ip" in a sentence, the bot will instantly reply).
 - **Smart Text Matching**: Text triggers use word boundary detection, meaning the word "skip" won't accidentally trigger a command mapped to "ip".
+- **Channel Restrictions**: Explicitly whitelist or blacklist specific Discord channels for each individual custom command.
 - **Maintenance Mode**: Admins can lock and unlock the Minecraft server instantly from Discord with customizable text commands.
 - **Hot-Reloading**: Automatically update your commands without restarting your Minecraft server using the built-in reload command.
 
@@ -43,19 +44,25 @@ All custom commands are stored in `config/tamilcraft-discord-commands.json`.
       "name": "ip",
       "description": "Displays the Tamilcraft server IP",
       "replyMessage": "The default IP is: **play.tamilcraft.in**",
-      "hasTargetOption": true
+      "hasTargetOption": true,
+      "allowedChannelIds": [],
+      "restrictedChannelIds": []
     },
     {
       "name": "support",
       "description": "Get a link to the support channel",
       "replyMessage": "Need help? Open a ticket in <#123456789012345678>!",
-      "hasTargetOption": false
+      "hasTargetOption": false,
+      "allowedChannelIds": [],
+      "restrictedChannelIds": []
     }
   ],
   "maintenanceAdminRoleId": "YOUR_DISCORD_ROLE_ID_HERE",
   "maintenanceMessage": "The server is currently under maintenance. Please check Discord for updates!",
   "maintenanceOnReply": "✅ **Maintenance mode ENABLED!** Only Admins can join the server now.",
-  "maintenanceOffReply": "✅ **Maintenance mode DISABLED!** The server is now open to verified players."
+  "maintenanceOffReply": "✅ **Maintenance mode DISABLED!** The server is now open to verified players.",
+  "maintenanceAllowedChannelIds": [],
+  "maintenanceRestrictedChannelIds": []
 }
 ```
 
@@ -63,6 +70,8 @@ All custom commands are stored in `config/tamilcraft-discord-commands.json`.
 *   **`description`**: The hover description displayed in Discord's slash command menu.
 *   **`replyMessage`**: The actual text the bot will respond with.
 *   **`hasTargetOption`**: Set to `true` if you want the slash command to optionally target another user (e.g., `/ip @user`).
+*   **`allowedChannelIds`**: (Whitelist) If you add Discord Channel IDs cleanly wrapped in quotes (e.g., `["123", "456"]`), the command will ONLY work in those channels. Leave empty `[]` to allow anywhere.
+*   **`restrictedChannelIds`**: (Blacklist) Add Discord Channel IDs here to ban the command from being used in those specific channels.
 *   **`maintenanceAdminRoleId`**: The Discord ID of the Role allowed to run the maintenance toggle commands in Discord.
 *   **`maintenanceMessage`**: The kick screen message displayed to non-Admins trying to join a locked server.
 

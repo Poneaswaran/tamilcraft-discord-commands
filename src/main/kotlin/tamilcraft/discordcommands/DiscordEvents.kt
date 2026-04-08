@@ -34,6 +34,12 @@ class DiscordEvents {
                 
                 // Admin Maintenance Command
                 if (msg == "maintenance on") {
+                    val allowedMaintenanceChannels = DiscordCommandsMod.db.maintenanceAllowedChannelIds
+                    if (allowedMaintenanceChannels.isNotEmpty() && !allowedMaintenanceChannels.contains(e.channel.id)) return
+                    
+                    val restrictedMaintenanceChannels = DiscordCommandsMod.db.maintenanceRestrictedChannelIds
+                    if (restrictedMaintenanceChannels.contains(e.channel.id)) return
+                    
                     val hasRole = e.member?.roles?.any { it.id == adminRoleId } == true
                     if (hasRole) {
                         DiscordCommandsMod.isMaintenanceMode = true
@@ -44,6 +50,12 @@ class DiscordEvents {
                         return
                     }
                 } else if (msg == "maintenance off") {
+                    val allowedMaintenanceChannels = DiscordCommandsMod.db.maintenanceAllowedChannelIds
+                    if (allowedMaintenanceChannels.isNotEmpty() && !allowedMaintenanceChannels.contains(e.channel.id)) return
+                    
+                    val restrictedMaintenanceChannels = DiscordCommandsMod.db.maintenanceRestrictedChannelIds
+                    if (restrictedMaintenanceChannels.contains(e.channel.id)) return
+                    
                     val hasRole = e.member?.roles?.any { it.id == adminRoleId } == true
                     if (hasRole) {
                         DiscordCommandsMod.isMaintenanceMode = false
@@ -61,6 +73,13 @@ class DiscordEvents {
                     val regex = "\\b${cmd.name.lowercase()}\\b".toRegex()
                     
                     if (regex.containsMatchIn(msg)) {
+                        if (cmd.allowedChannelIds.isNotEmpty() && !cmd.allowedChannelIds.contains(e.channel.id)) {
+                            continue
+                        }
+                        if (cmd.restrictedChannelIds.contains(e.channel.id)) {
+                            continue
+                        }
+                        
                         logger.info("Triggered text command for '${cmd.name}' by ${e.author.name}")
                         e.channel.sendMessage(cmd.replyMessage).queue()
                         break

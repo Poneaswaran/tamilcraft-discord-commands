@@ -4,7 +4,9 @@ data class CustomCommandConfig(
     val name: String,
     val description: String,
     val replyMessage: String,
-    val hasTargetOption: Boolean = true
+    val hasTargetOption: Boolean = true,
+    val allowedChannelIds: List<String> = emptyList(),
+    val restrictedChannelIds: List<String> = emptyList()
 )
 
 data class DiscordCommandsDatabase(
@@ -19,5 +21,7 @@ data class DiscordCommandsDatabase(
     val maintenanceAdminRoleId: String = "YOUR_DISCORD_ROLE_ID_HERE",
     val maintenanceMessage: String = "The server is currently under maintenance. Please check Discord for updates!",
     val maintenanceOnReply: String = "✅ **Maintenance mode ENABLED!** Only Admins can join the server now.",
-    val maintenanceOffReply: String = "✅ **Maintenance mode DISABLED!** The server is now open to verified players."
+    val maintenanceOffReply: String = "✅ **Maintenance mode DISABLED!** The server is now open to verified players.",
+    val maintenanceAllowedChannelIds: List<String> = emptyList(),
+    val maintenanceRestrictedChannelIds: List<String> = emptyList()
 )
