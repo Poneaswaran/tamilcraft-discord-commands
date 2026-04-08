@@ -19,6 +19,7 @@ class DiscordCommandsMod : ModInitializer, PreLaunchEntrypoint {
 
     companion object {
         var db: DiscordCommandsDatabase = DiscordCommandsDatabase()
+        var isMaintenanceMode: Boolean = false
     }
 
     override fun onPreLaunch() {
@@ -44,6 +45,18 @@ class DiscordCommandsMod : ModInitializer, PreLaunchEntrypoint {
                 )
             )
         })
+
+        // Maintenance Mode Join Interceptor
+        net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.JOIN.register(
+            net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.Join { handler, sender, server ->
+                if (isMaintenanceMode) {
+                    val isOp = server.playerList.isOp(handler.player.gameProfile)
+                    if (!isOp) {
+                        handler.disconnect(Component.literal(db.maintenanceMessage))
+                    }
+                }
+            }
+        )
     }
 
     private fun loadDatabase() {

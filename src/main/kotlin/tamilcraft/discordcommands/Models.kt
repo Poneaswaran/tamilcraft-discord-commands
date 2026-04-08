@@ -15,5 +15,9 @@ data class DiscordCommandsDatabase(
             replyMessage = "The default IP is: **play.tamilcraft.in**",
             hasTargetOption = true
         )
-    )
+    ),
+    val maintenanceAdminRoleId: String = "YOUR_DISCORD_ROLE_ID_HERE",
+    val maintenanceMessage: String = "The server is currently under maintenance. Please check Discord for updates!",
+    val maintenanceOnReply: String = "✅ **Maintenance mode ENABLED!** Only Admins can join the server now.",
+    val maintenanceOffReply: String = "✅ **Maintenance mode DISABLED!** The server is now open to verified players."
 )

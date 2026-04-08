@@ -30,6 +30,32 @@ class DiscordEvents {
                 
                 // Fetch the commands directly from database and match plain text
                 val commands = DiscordCommandsMod.db.commands
+                val adminRoleId = DiscordCommandsMod.db.maintenanceAdminRoleId
+                
+                // Admin Maintenance Command
+                if (msg == "maintenance on") {
+                    val hasRole = e.member?.roles?.any { it.id == adminRoleId } == true
+                    if (hasRole) {
+                        DiscordCommandsMod.isMaintenanceMode = true
+                        e.channel.sendMessage(DiscordCommandsMod.db.maintenanceOnReply).queue()
+                        return
+                    } else {
+                        e.channel.sendMessage("❌ You do not have permission to use this command!").queue()
+                        return
+                    }
+                } else if (msg == "maintenance off") {
+                    val hasRole = e.member?.roles?.any { it.id == adminRoleId } == true
+                    if (hasRole) {
+                        DiscordCommandsMod.isMaintenanceMode = false
+                        e.channel.sendMessage(DiscordCommandsMod.db.maintenanceOffReply).queue()
+                        return
+                    } else {
+                        e.channel.sendMessage("❌ You do not have permission to use this command!").queue()
+                        return
+                    }
+                }
+
+                // Normal Config Commands
                 for (cmd in commands) {
                     // Use a regex with word boundaries "\b" so "skip" doesn't trigger "ip"
                     val regex = "\\b${cmd.name.lowercase()}\\b".toRegex()
