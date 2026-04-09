@@ -52,7 +52,9 @@ class DiscordCommandsMod : ModInitializer, PreLaunchEntrypoint {
                 if (isMaintenanceMode) {
                     val isOp = server.playerList.isOp(handler.player.gameProfile)
                     if (!isOp) {
-                        handler.disconnect(Component.literal(db.maintenanceMessage))
+                        server.execute {
+                            handler.disconnect(Component.literal(db.maintenanceMessage))
+                        }
                     }
                 }
             }
