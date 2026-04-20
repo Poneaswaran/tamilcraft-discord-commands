@@ -95,6 +95,11 @@ The mod exposes a small HTTP API for live server data.
 - `GET /api/players/{uuid}/pc/search?q=...`: PC search results (uses Cobblemon `Search` when available).
 - `GET /api/players/{uuid}/pokedex`: Pokedex summary and entries from Cobblemon `PokedexManager`.
 - `GET /api/players/{uuid}/progress`: General flags/key items and advancement counters from Cobblemon player data.
+- `GET /api/pokemon/players`: Lists players that match a Pokemon filter. Default filter is legendary Pokemon.
+  - Optional query `type`:
+    - Omit `type` (or use `type=legendary`) to list players with legendary Pokemon.
+    - Use `type=<pokemon-type>` (e.g. `fire`, `water`, `dragon`) to filter by Pokemon elemental type.
+    - Use `type=all` to include players with any Pokemon.
 
 Legacy compatibility endpoint:
 
@@ -108,6 +113,10 @@ curl http://127.0.0.1:8088/api/players/Steve
 curl http://127.0.0.1:8088/api/players/00000000-0000-0000-0000-000000000000/party
 curl http://127.0.0.1:8088/api/players/00000000-0000-0000-0000-000000000000/pc?page=2&pageSize=4
 curl http://127.0.0.1:8088/api/players/00000000-0000-0000-0000-000000000000/pc/search?q=shiny
+curl http://127.0.0.1:8088/api/pokemon/players
+curl http://127.0.0.1:8088/api/pokemon/players?type=legendary
+curl http://127.0.0.1:8088/api/pokemon/players?type=water
+curl http://127.0.0.1:8088/api/pokemon/players?type=all
 ```
 
 If `apiAuthToken` is configured:
@@ -118,7 +127,7 @@ curl -H "X-Api-Token: YOUR_TOKEN" http://127.0.0.1:8088/api/players/Steve
 
 ### Notes
 
-- Name-based lookup requires the player to be online.
+- Name-based lookup supports online and offline players (if their profile is present in server cache).
 - UUID-based lookup works for profile and Cobblemon-backed data where stored data exists.
 - If Cobblemon is not loaded, Cobblemon-specific endpoints return empty data structures.
 - PC pagination parameters: `page` is 1-based, `pageSize` default is 5, and `pageSize` max is 50.
