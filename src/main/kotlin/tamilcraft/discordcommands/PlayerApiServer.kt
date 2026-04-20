@@ -9,7 +9,9 @@ import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
+import net.minecraft.world.level.storage.LevelResource
 import org.slf4j.LoggerFactory
+import java.io.File
 import java.net.InetSocketAddress
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -56,6 +58,7 @@ class PlayerApiServer(private val gson: Gson) {
         server.createContext("/api/health", HealthHandler())
         server.createContext("/api/player", LegacyPlayerDetailsHandler())
         server.createContext("/api/players", PlayersApiHandler())
+        server.createContext("/api/pokemon/players", PokemonPlayersHandler())
         server.executor = Executors.newFixedThreadPool(2)
         server.start()
 
@@ -80,7 +83,8 @@ class PlayerApiServer(private val gson: Gson) {
     private data class PlayerIdentity(
         val uuid: UUID,
         val input: String,
-        val player: ServerPlayer?
+        val player: ServerPlayer?,
+        val cachedName: String? = null
     )
 
     private inner class HealthHandler : HttpHandler {
@@ -281,6 +285,86 @@ class PlayerApiServer(private val gson: Gson) {
         }
     }
 
+    private inner class PokemonPlayersHandler : HttpHandler {
+        override fun handle(exchange: HttpExchange) {
+            if (!isAuthorized(exchange)) {
+                writeJson(exchange, 401, mapOf("error" to "Unauthorized"))
+                return
+            }
+
+            if (exchange.requestMethod != "GET") {
+                writeJson(exchange, 405, mapOf("error" to "Only GET is supported"))
+                return
+            }
+
+            val server = activeServer
+            if (server == null) {
+                writeJson(exchange, 503, mapOf("error" to "Minecraft server not available yet"))
+                return
+            }
+
+            val queryParams = parseQueryParams(exchange.requestURI.rawQuery)
+            val requestedType = queryParams["type"]?.trim().orEmpty()
+            val normalizedType = requestedType.lowercase(Locale.ROOT)
+
+            val mode = when {
+                normalizedType.isBlank() || normalizedType == "legendary" -> "legendary"
+                normalizedType == "all" -> "all"
+                else -> "type"
+            }
+
+            val allUuids = collectKnownPlayerUuids(server)
+            val matches = mutableListOf<Map<String, Any?>>()
+
+            allUuids.forEach { playerUuid ->
+                val identity = resolveIdentity(server, playerUuid.toString())
+                    ?: PlayerIdentity(
+                        uuid = playerUuid,
+                        input = playerUuid.toString(),
+                        player = server.playerList.getPlayer(playerUuid),
+                        cachedName = resolveProfileNameByUuid(server, playerUuid)
+                    )
+
+                val matchedPokemon = CobblemonBridge.collectAllPokemonSummaries(server, playerUuid).filter { pokemon ->
+                    when (mode) {
+                        "legendary" -> pokemon["legendary"] == true
+                        "all" -> true
+                        else -> {
+                            val types = (pokemon["types"] as? List<*>)
+                                ?.mapNotNull { it?.toString()?.lowercase(Locale.ROOT) }
+                                ?: emptyList()
+                            types.contains(normalizedType)
+                        }
+                    }
+                }
+
+                if (matchedPokemon.isNotEmpty()) {
+                    matches.add(
+                        mapOf(
+                            "player" to identityPayload(identity),
+                            "matchCount" to matchedPokemon.size,
+                            "pokemon" to matchedPokemon
+                        )
+                    )
+                }
+            }
+
+            writeJson(
+                exchange,
+                200,
+                mapOf(
+                    "filter" to mapOf(
+                        "type" to if (mode == "legendary") "legendary" else if (mode == "all") "all" else normalizedType,
+                        "mode" to mode,
+                        "defaultLegendary" to requestedType.isBlank()
+                    ),
+                    "playerCount" to matches.size,
+                    "players" to matches
+                )
+            )
+        }
+    }
+
     private fun buildPlayerProfile(server: MinecraftServer, identity: PlayerIdentity): Map<String, Any?> {
         val onlinePlayer = identity.player
         val playtimeTicks = onlinePlayer?.let { readPlaytimeTicks(it) } ?: 0
@@ -328,7 +412,7 @@ class PlayerApiServer(private val gson: Gson) {
         return mapOf(
             "lookup" to identity.input,
             "uuid" to identity.uuid.toString(),
-            "name" to identity.player?.gameProfile?.name,
+            "name" to (identity.player?.gameProfile?.name ?: identity.cachedName),
             "online" to (identity.player != null)
         )
     }
@@ -341,14 +425,60 @@ class PlayerApiServer(private val gson: Gson) {
 
         parseUuid(normalized)?.let { parsed ->
             val player = server.playerList.getPlayer(parsed)
-            return PlayerIdentity(parsed, normalized, player)
+            val cachedName = player?.gameProfile?.name ?: resolveProfileNameByUuid(server, parsed)
+            return PlayerIdentity(parsed, normalized, player, cachedName)
         }
 
         val player = server.playerList.players.firstOrNull {
             it.gameProfile.name.equals(normalized, ignoreCase = true)
-        } ?: return null
+        }
 
-        return PlayerIdentity(player.uuid, normalized, player)
+        if (player != null) {
+            return PlayerIdentity(player.uuid, normalized, player, player.gameProfile.name)
+        }
+
+        val cachedUuid = resolveProfileUuidByName(server, normalized) ?: return null
+        val resolvedOnlinePlayer = server.playerList.getPlayer(cachedUuid)
+        val cachedName = resolvedOnlinePlayer?.gameProfile?.name ?: resolveProfileNameByUuid(server, cachedUuid) ?: normalized
+
+        return PlayerIdentity(cachedUuid, normalized, resolvedOnlinePlayer, cachedName)
+    }
+
+    private fun resolveProfileUuidByName(server: MinecraftServer, name: String): UUID? {
+        val profileCache = ReflectionHelpers.readField(server, "profileCache")
+            ?: ReflectionHelpers.callNoArg(server, listOf("getProfileCache", "profileCache"))
+            ?: return null
+
+        val result = ReflectionHelpers.callSingleArg(profileCache, listOf("get"), name) ?: return null
+        val profile = ReflectionHelpers.extractOptionalValue(result) ?: result
+        val rawId = ReflectionHelpers.readField(profile, "id")
+            ?: ReflectionHelpers.callNoArg(profile, listOf("getId", "id"))
+            ?: return null
+
+        return when (rawId) {
+            is UUID -> rawId
+            else -> parseUuid(rawId.toString())
+        }
+    }
+
+    private fun resolveProfileNameByUuid(server: MinecraftServer, playerUuid: UUID): String? {
+        val profileCache = ReflectionHelpers.readField(server, "profileCache")
+            ?: ReflectionHelpers.callNoArg(server, listOf("getProfileCache", "profileCache"))
+            ?: return null
+
+        val result = ReflectionHelpers.callSingleArg(profileCache, listOf("get"), playerUuid) ?: return null
+        val profile = ReflectionHelpers.extractOptionalValue(result) ?: result
+        val rawName = ReflectionHelpers.readField(profile, "name")
+            ?: ReflectionHelpers.callNoArg(profile, listOf("getName", "name"))
+            ?: return null
+        return rawName.toString().trim().ifBlank { null }
+    }
+
+    private fun collectKnownPlayerUuids(server: MinecraftServer): Set<UUID> {
+        val uuids = linkedSetOf<UUID>()
+        server.playerList.players.forEach { player -> uuids.add(player.uuid) }
+        uuids.addAll(CobblemonBridge.listStoredPlayerUuids(server))
+        return uuids
     }
 
     private fun parseUuid(value: String): UUID? {
@@ -729,6 +859,69 @@ private object CobblemonBridge {
         }
     }
 
+    fun collectAllPokemonSummaries(server: MinecraftServer, playerUuid: UUID): List<Map<String, Any?>> {
+        val combined = mutableListOf<Map<String, Any?>>()
+        combined.addAll(readParty(server, playerUuid))
+
+        val pc = readPc(server, playerUuid)
+        val boxes = (pc["boxes"] as? List<*>) ?: emptyList<Any>()
+        boxes.forEach { box ->
+            val slots = ((box as? Map<*, *>)?.get("slots") as? List<*>) ?: emptyList<Any>()
+            slots.forEach { slot ->
+                val pokemon = (slot as? Map<*, *>)?.get("pokemon") as? Map<*, *> ?: return@forEach
+                @Suppress("UNCHECKED_CAST")
+                combined.add(pokemon as Map<String, Any?>)
+            }
+        }
+
+        return combined
+    }
+
+    fun listStoredPlayerUuids(server: MinecraftServer): Set<UUID> {
+        if (!isLoaded()) {
+            return emptySet()
+        }
+
+        return try {
+            val root = server.getWorldPath(LevelResource.ROOT).resolve("pokemon").toFile()
+            if (!root.exists() || !root.isDirectory) {
+                return emptySet()
+            }
+
+            val candidateRoots = listOf(
+                File(root, "playerpartystore"),
+                File(root, "pcstore")
+            ).filter { it.exists() && it.isDirectory }
+
+            val scanRoots = if (candidateRoots.isEmpty()) listOf(root) else candidateRoots
+            val uuidRegex = Regex("^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(?:-[^.]+)?\\.(?:dat|json)$")
+            val uuids = linkedSetOf<UUID>()
+
+            scanRoots.forEach { scanRoot ->
+                scanRoot.walkTopDown()
+                    .filter { it.isFile }
+                    .forEach { file ->
+                        val match = uuidRegex.find(file.name) ?: return@forEach
+                        val uuidText = match.groupValues[1]
+                        parseUuidOrNull(uuidText)?.let { uuids.add(it) }
+                    }
+            }
+
+            uuids
+        } catch (e: Exception) {
+            logger.debug("Failed to enumerate stored Cobblemon player UUIDs", e)
+            emptySet()
+        }
+    }
+
+    private fun parseUuidOrNull(value: String): UUID? {
+        return try {
+            UUID.fromString(value)
+        } catch (_: IllegalArgumentException) {
+            null
+        }
+    }
+
     private fun resolveStorage(): Any? {
         val cobblemonClass = Class.forName("com.cobblemon.mod.common.Cobblemon")
         val instance = ReflectionHelpers.readStaticField(cobblemonClass, "INSTANCE") ?: return null
@@ -846,6 +1039,24 @@ private object CobblemonBridge {
             ?: ReflectionHelpers.extractDisplayName(pokemon)
             ?: return null
 
+        val formObj = ReflectionHelpers.callNoArg(pokemon, listOf("getForm", "form"))
+        val types = ReflectionHelpers.extractEntries(
+            ReflectionHelpers.readField(formObj ?: return null, "types")
+                ?: ReflectionHelpers.callNoArg(formObj, listOf("getTypes", "types"))
+                ?: emptyList<String>()
+        ).mapNotNull { typeValue ->
+            ReflectionHelpers.extractDisplayName(typeValue)
+                ?: typeValue.toString().takeIf { it.isNotBlank() }
+        }
+
+        val labels = ReflectionHelpers.extractEntries(
+            ReflectionHelpers.readField(formObj, "labels")
+                ?: ReflectionHelpers.callNoArg(formObj, listOf("getLabels", "labels"))
+                ?: emptyList<String>()
+        ).map { it.toString().lowercase(Locale.ROOT) }
+
+        val legendary = labels.any { it == "legendary" || it.endsWith(":legendary") }
+
         val level = ReflectionHelpers.extractNumber(
             ReflectionHelpers.callNoArg(pokemon, listOf("getLevel", "level"))
         )
@@ -858,6 +1069,8 @@ private object CobblemonBridge {
 
         return mapOf(
             "species" to speciesName,
+            "types" to types,
+            "legendary" to legendary,
             "level" to level,
             "shiny" to shiny,
             "nickname" to nickname
@@ -1014,6 +1227,28 @@ private object ReflectionHelpers {
         }
 
         return null
+    }
+
+    fun extractOptionalValue(value: Any?): Any? {
+        if (value == null) {
+            return null
+        }
+
+        return try {
+            val optionalClass = Class.forName("java.util.Optional")
+            if (!optionalClass.isInstance(value)) {
+                return null
+            }
+
+            val isPresent = optionalClass.getMethod("isPresent").invoke(value) as? Boolean ?: false
+            if (!isPresent) {
+                null
+            } else {
+                optionalClass.getMethod("get").invoke(value)
+            }
+        } catch (_: Exception) {
+            null
+        }
     }
 
     fun asMap(value: Any?): Map<Any, Any> {
