@@ -16,6 +16,7 @@ class DiscordCommandsMod : ModInitializer, PreLaunchEntrypoint {
     private val logger = LoggerFactory.getLogger("tamilcraft-discord-commands")
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
     private val configFile = File(FabricLoader.getInstance().configDir.toFile(), "tamilcraft-discord-commands.json")
+    private val playerApiServer = PlayerApiServer(gson)
 
     companion object {
         var db: DiscordCommandsDatabase = DiscordCommandsDatabase()
@@ -33,12 +34,16 @@ class DiscordCommandsMod : ModInitializer, PreLaunchEntrypoint {
     override fun onInitialize() {
         logger.info("Initializing Tamilcraft Discord Commands main...")
 
+        playerApiServer.registerLifecycleHooks()
+        applyApiConfig()
+
         CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher, registryAccess, environment ->
             dispatcher.register(Commands.literal("tc-discord")
                 .requires { source -> source.hasPermission(2) }
                 .then(Commands.literal("reload")
                     .executes { context ->
                         loadDatabase()
+                        applyApiConfig()
                         context.source.sendSuccess({ Component.literal("Tamilcraft Discord Commands config reloaded! Run /discord reload to apply completely new commands to Discord.") }, false)
                         1
                     }
@@ -59,6 +64,23 @@ class DiscordCommandsMod : ModInitializer, PreLaunchEntrypoint {
                 }
             }
         )
+    }
+
+    private fun applyApiConfig() {
+        if (!db.apiEnabled) {
+            playerApiServer.stop()
+            logger.info("Player API disabled in config")
+            return
+        }
+
+        val configuredHost = db.apiHost.trim()
+        val effectiveHost = if (configuredHost.isBlank() || configuredHost == "127.0.0.1" || configuredHost.equals("localhost", ignoreCase = true)) {
+            "0.0.0.0"
+        } else {
+            configuredHost
+        }
+
+        playerApiServer.start(effectiveHost, db.apiPort, db.apiAuthToken)
     }
 
     private fun loadDatabase() {

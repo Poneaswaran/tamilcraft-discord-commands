@@ -1,0 +1,3 @@
+[submodule "cobblemon"]
+	path = cobblemon
+	url = https://gitlab.com/cable-mc/cobblemon.git

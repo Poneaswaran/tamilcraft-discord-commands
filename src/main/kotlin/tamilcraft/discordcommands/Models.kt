@@ -23,5 +23,9 @@ data class DiscordCommandsDatabase(
     val maintenanceOnReply: String = "✅ **Maintenance mode ENABLED!** Only Admins can join the server now.",
     val maintenanceOffReply: String = "✅ **Maintenance mode DISABLED!** The server is now open to verified players.",
     val maintenanceAllowedChannelIds: List<String> = emptyList(),
-    val maintenanceRestrictedChannelIds: List<String> = emptyList()
+    val maintenanceRestrictedChannelIds: List<String> = emptyList(),
+    val apiEnabled: Boolean = true,
+    val apiHost: String = "0.0.0.0",
+    val apiPort: Int = 8088,
+    val apiAuthToken: String = ""
 )

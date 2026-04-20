@@ -10,6 +10,7 @@ A lightweight Fabric server-side mod designed to seamlessly link your Minecraft 
 - **Channel Restrictions**: Explicitly whitelist or blacklist specific Discord channels for each individual custom command.
 - **Maintenance Mode**: Admins can lock and unlock the Minecraft server instantly from Discord with customizable text commands.
 - **Hot-Reloading**: Automatically update your commands without restarting your Minecraft server using the built-in reload command.
+- **Player HTTP API**: Query player profile, party, PC, PC search, pokedex, and progression data over a local HTTP endpoint.
 
 ## Installation
 
@@ -62,7 +63,11 @@ All custom commands are stored in `config/tamilcraft-discord-commands.json`.
   "maintenanceOnReply": "✅ **Maintenance mode ENABLED!** Only Admins can join the server now.",
   "maintenanceOffReply": "✅ **Maintenance mode DISABLED!** The server is now open to verified players.",
   "maintenanceAllowedChannelIds": [],
-  "maintenanceRestrictedChannelIds": []
+  "maintenanceRestrictedChannelIds": [],
+  "apiEnabled": true,
+  "apiHost": "0.0.0.0",
+  "apiPort": 8088,
+  "apiAuthToken": ""
 }
 ```
 
@@ -74,6 +79,49 @@ All custom commands are stored in `config/tamilcraft-discord-commands.json`.
 *   **`restrictedChannelIds`**: (Blacklist) Add Discord Channel IDs here to ban the command from being used in those specific channels.
 *   **`maintenanceAdminRoleId`**: The Discord ID of the Role allowed to run the maintenance toggle commands in Discord.
 *   **`maintenanceMessage`**: The kick screen message displayed to non-Admins trying to join a locked server.
+*   **`apiEnabled`**: Enables or disables the built-in HTTP API.
+*   **`apiHost`**: Host to bind the API server to. Default is `0.0.0.0` (all interfaces).
+*   **`apiPort`**: Port for the API server.
+*   **`apiAuthToken`**: Optional token. If set, requests must include `X-Api-Token: <token>` or `Authorization: Bearer <token>`.
+
+## HTTP API
+
+The mod exposes a small HTTP API for live server data.
+
+- `GET /api/health`: API health and whether a Minecraft server instance is attached.
+- `GET /api/players/{uuid-or-name}`: Player profile summary (identity, playtime, Cobblemon counts, general flags).
+- `GET /api/players/{uuid}/party`: Party data from Cobblemon `PokemonStoreManager` / `PlayerPartyStore`.
+- `GET /api/players/{uuid}/pc?page=1&pageSize=5`: Paginated PC box data from Cobblemon `PCStore`.
+- `GET /api/players/{uuid}/pc/search?q=...`: PC search results (uses Cobblemon `Search` when available).
+- `GET /api/players/{uuid}/pokedex`: Pokedex summary and entries from Cobblemon `PokedexManager`.
+- `GET /api/players/{uuid}/progress`: General flags/key items and advancement counters from Cobblemon player data.
+
+Legacy compatibility endpoint:
+
+- `GET /api/player/{uuid-or-name}`: Alias to profile summary.
+
+### Example requests
+
+```bash
+curl http://127.0.0.1:8088/api/health
+curl http://127.0.0.1:8088/api/players/Steve
+curl http://127.0.0.1:8088/api/players/00000000-0000-0000-0000-000000000000/party
+curl http://127.0.0.1:8088/api/players/00000000-0000-0000-0000-000000000000/pc?page=2&pageSize=4
+curl http://127.0.0.1:8088/api/players/00000000-0000-0000-0000-000000000000/pc/search?q=shiny
+```
+
+If `apiAuthToken` is configured:
+
+```bash
+curl -H "X-Api-Token: YOUR_TOKEN" http://127.0.0.1:8088/api/players/Steve
+```
+
+### Notes
+
+- Name-based lookup requires the player to be online.
+- UUID-based lookup works for profile and Cobblemon-backed data where stored data exists.
+- If Cobblemon is not loaded, Cobblemon-specific endpoints return empty data structures.
+- PC pagination parameters: `page` is 1-based, `pageSize` default is 5, and `pageSize` max is 50.
 
 ## Maintenance Mode
 With the mod running, anyone holding the configured `maintenanceAdminRoleId` role in Discord can type the following exact phrases into any readable Discord channel:
