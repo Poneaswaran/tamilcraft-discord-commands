@@ -52,7 +52,8 @@ class PokemonCacheManager(private val gson: Gson) {
                     eggs_hatched INTEGER DEFAULT 0,
                     traded_count INTEGER DEFAULT 0,
                     evolved_count INTEGER DEFAULT 0,
-                    total_pokemon INTEGER DEFAULT 0
+                    total_pokemon INTEGER DEFAULT 0,
+                    cobbledollars INTEGER DEFAULT 0
                 )
             """)
             // Ensure columns exist for existing databases
@@ -69,7 +70,8 @@ class PokemonCacheManager(private val gson: Gson) {
                 "eggs_hatched INTEGER DEFAULT 0",
                 "traded_count INTEGER DEFAULT 0",
                 "evolved_count INTEGER DEFAULT 0",
-                "total_pokemon INTEGER DEFAULT 0"
+                "total_pokemon INTEGER DEFAULT 0",
+                "cobbledollars INTEGER DEFAULT 0"
             )
             columns.forEach { col ->
                 try {
@@ -142,6 +144,9 @@ class PokemonCacheManager(private val gson: Gson) {
             // Get total pokemon
             val pokemonList = CobblemonBridge.collectAllPokemonSummaries(server, playerUuid)
             val totalPokemon = pokemonList.size
+            
+            // Get balance
+            val cobbledollars = CobblemonBridge.readEconomy(playerUuid)
 
             conn.autoCommit = false
             
@@ -149,8 +154,9 @@ class PokemonCacheManager(private val gson: Gson) {
             val playerStmt = conn.prepareStatement("""
                 INSERT INTO players (uuid, name, last_updated, playtime_ticks, health, max_health, 
                     pokedex_seen, pokedex_caught, caught_count, shiny_caught_count, 
-                    pvp_wins, battle_wins, eggs_hatched, traded_count, evolved_count, total_pokemon) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    pvp_wins, battle_wins, eggs_hatched, traded_count, evolved_count, 
+                    total_pokemon, cobbledollars) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(uuid) DO UPDATE SET 
                     name=excluded.name, 
                     last_updated=excluded.last_updated,
@@ -166,7 +172,8 @@ class PokemonCacheManager(private val gson: Gson) {
                     eggs_hatched=excluded.eggs_hatched,
                     traded_count=excluded.traded_count,
                     evolved_count=excluded.evolved_count,
-                    total_pokemon=excluded.total_pokemon
+                    total_pokemon=excluded.total_pokemon,
+                    cobbledollars=excluded.cobbledollars
             """)
             playerStmt.setString(1, playerUuid.toString())
             playerStmt.setString(2, playerName ?: playerUuid.toString())
@@ -184,6 +191,7 @@ class PokemonCacheManager(private val gson: Gson) {
             playerStmt.setInt(14, tradedCount)
             playerStmt.setInt(15, evolvedCount)
             playerStmt.setInt(16, totalPokemon)
+            playerStmt.setLong(17, cobbledollars)
             playerStmt.executeUpdate()
             playerStmt.close()
 
@@ -363,6 +371,7 @@ class PokemonCacheManager(private val gson: Gson) {
             "pokedexSeen" -> "pokedex_seen"
             "playtimeTicks" -> "playtime_ticks"
             "totalPokemon" -> "total_pokemon"
+            "cobbledollars" -> "cobbledollars"
             else -> return emptyList()
         }
 

@@ -1021,6 +1021,18 @@ internal object CobblemonBridge {
         }
     }
 
+    fun readEconomy(playerUuid: UUID): Long {
+        if (!isLoaded()) return 0
+        return try {
+            val storage = resolveStorage() ?: return 0
+            val economyStore = ReflectionHelpers.callNoArg(storage, listOf("getEconomy", "economy")) ?: return 0
+            val balance = ReflectionHelpers.callSingleArg(economyStore, listOf("getBalance"), playerUuid)
+            (balance as? Number)?.toLong() ?: 0
+        } catch (e: Exception) {
+            0
+        }
+    }
+
     fun collectAllPokemonSummaries(server: MinecraftServer, playerUuid: UUID): List<Map<String, Any?>> {
         val combined = mutableListOf<Map<String, Any?>>()
         combined.addAll(readParty(server, playerUuid))
