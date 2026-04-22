@@ -71,7 +71,7 @@ The mod exposes a robust HTTP API for live and cached server data.
 ### Server & Stats Endpoints
 - `GET /api/server/stats`: Live server dashboard (TPS, MOTD, online players, world time).
 - `GET /api/leaderboard?stat=<type>&limit=10`: Ranked list of players.
-  - `stat` options: `caughtCount`, `shinyCaughtCount`, `pvpWins`, `battleWins`, `eggsHatched`, `tradedCount`, `evolvedCount`, `pokedexCaught`, `pokedexSeen`, `playtimeTicks`, `totalPokemon`, `cobbledollars`.
+  - `stat` options: `caughtCount`, `shinyCaughtCount`, `pvpWins`, `battleWins`, `eggsHatched`, `tradedCount`, `evolvedCount`, `pokedexCaught`, `pokedexSeen`, `playtimeTicks`, `totalPokemon`, `cobbledollars`, `deathCount`.
 - `GET /api/pokemon/players?type=<type>`: Lists players that match a Pokemon filter.
 - `GET /api/health`: Basic API health check.
 

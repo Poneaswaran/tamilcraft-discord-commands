@@ -27,8 +27,10 @@ class PokemonCacheManager(private val gson: Gson) {
     fun initialize(dbPath: String) {
         try {
             val dbFile = File(dbPath)
-            if (!dbFile.parentFile.exists()) {
-                dbFile.parentFile.mkdirs()
+            dbFile.parentFile?.let {
+                if (!it.exists()) {
+                    it.mkdirs()
+                }
             }
 
             val url = "jdbc:sqlite:$dbPath"
@@ -53,7 +55,8 @@ class PokemonCacheManager(private val gson: Gson) {
                     traded_count INTEGER DEFAULT 0,
                     evolved_count INTEGER DEFAULT 0,
                     total_pokemon INTEGER DEFAULT 0,
-                    cobbledollars INTEGER DEFAULT 0
+                    cobbledollars INTEGER DEFAULT 0,
+                    deaths INTEGER DEFAULT 0
                 )
             """)
             // Ensure columns exist for existing databases
@@ -71,7 +74,8 @@ class PokemonCacheManager(private val gson: Gson) {
                 "traded_count INTEGER DEFAULT 0",
                 "evolved_count INTEGER DEFAULT 0",
                 "total_pokemon INTEGER DEFAULT 0",
-                "cobbledollars INTEGER DEFAULT 0"
+                "cobbledollars INTEGER DEFAULT 0",
+                "deaths INTEGER DEFAULT 0"
             )
             columns.forEach { col ->
                 try {
@@ -124,6 +128,12 @@ class PokemonCacheManager(private val gson: Gson) {
             val health = onlinePlayer?.health?.toDouble() ?: 20.0
             val maxHealth = onlinePlayer?.maxHealth?.toDouble() ?: 20.0
             
+            val deaths = onlinePlayer?.let { 
+                try {
+                    it.server.playerList.getPlayerStats(it).getValue(net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.DEATHS))
+                } catch (_: Exception) { 0 }
+            } ?: 0
+
             // Get pokedex summary
             val pokedex = CobblemonBridge.readPokedex(server, playerUuid)
             val summary = pokedex["summary"] as? Map<*, *>
@@ -148,6 +158,13 @@ class PokemonCacheManager(private val gson: Gson) {
             // Get balance
             val cobbledollars = CobblemonBridge.readEconomy(playerUuid)
 
+            val resolvedName = playerName 
+                ?: onlinePlayer?.gameProfile?.name 
+                ?: resolveNameFromCache(server, playerUuid) 
+                ?: getCachedPlayerInfo(playerUuid)?.name
+                ?: resolveNameFromUserCacheFile(playerUuid)
+                ?: playerUuid.toString()
+
             conn.autoCommit = false
             
             // Update player info
@@ -155,32 +172,33 @@ class PokemonCacheManager(private val gson: Gson) {
                 INSERT INTO players (uuid, name, last_updated, playtime_ticks, health, max_health, 
                     pokedex_seen, pokedex_caught, caught_count, shiny_caught_count, 
                     pvp_wins, battle_wins, eggs_hatched, traded_count, evolved_count, 
-                    total_pokemon, cobbledollars) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    total_pokemon, cobbledollars, deaths) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(uuid) DO UPDATE SET 
-                    name=excluded.name, 
-                    last_updated=excluded.last_updated,
-                    playtime_ticks=excluded.playtime_ticks,
-                    health=excluded.health,
-                    max_health=excluded.max_health,
-                    pokedex_seen=excluded.pokedex_seen,
-                    pokedex_caught=excluded.pokedex_caught,
-                    caught_count=excluded.caught_count,
-                    shiny_caught_count=excluded.shiny_caught_count,
-                    pvp_wins=excluded.pvp_wins,
-                    battle_wins=excluded.battle_wins,
-                    eggs_hatched=excluded.eggs_hatched,
-                    traded_count=excluded.traded_count,
-                    evolved_count=excluded.evolved_count,
-                    total_pokemon=excluded.total_pokemon,
-                    cobbledollars=excluded.cobbledollars
+                    name = CASE WHEN excluded.name LIKE '%-%-%-%-%' AND players.name IS NOT NULL AND players.name NOT LIKE '%-%-%-%-%' THEN players.name ELSE excluded.name END,
+                    last_updated = excluded.last_updated,
+                    playtime_ticks = CASE WHEN excluded.playtime_ticks >= 0 THEN excluded.playtime_ticks ELSE players.playtime_ticks END,
+                    health = CASE WHEN excluded.playtime_ticks >= 0 THEN excluded.health ELSE players.health END,
+                    max_health = CASE WHEN excluded.playtime_ticks >= 0 THEN excluded.max_health ELSE players.max_health END,
+                    pokedex_seen = excluded.pokedex_seen,
+                    pokedex_caught = excluded.pokedex_caught,
+                    caught_count = excluded.caught_count,
+                    shiny_caught_count = excluded.shiny_caught_count,
+                    pvp_wins = excluded.pvp_wins,
+                    battle_wins = excluded.battle_wins,
+                    eggs_hatched = excluded.eggs_hatched,
+                    traded_count = excluded.traded_count,
+                    evolved_count = excluded.evolved_count,
+                    total_pokemon = excluded.total_pokemon,
+                    cobbledollars = excluded.cobbledollars,
+                    deaths = excluded.deaths
             """)
             playerStmt.setString(1, playerUuid.toString())
-            playerStmt.setString(2, playerName ?: playerUuid.toString())
+            playerStmt.setString(2, resolvedName)
             playerStmt.setLong(3, System.currentTimeMillis())
-            playerStmt.setInt(4, playtimeTicks)
-            playerStmt.setDouble(5, health)
-            playerStmt.setDouble(6, maxHealth)
+            playerStmt.setInt(4, if (onlinePlayer != null) playtimeTicks else -1)
+            playerStmt.setDouble(5, if (onlinePlayer != null) health else -1.0)
+            playerStmt.setDouble(6, if (onlinePlayer != null) maxHealth else -1.0)
             playerStmt.setInt(7, seenCount)
             playerStmt.setInt(8, caughtCountInPokedex)
             playerStmt.setInt(9, caughtCount)
@@ -192,6 +210,7 @@ class PokemonCacheManager(private val gson: Gson) {
             playerStmt.setInt(15, evolvedCount)
             playerStmt.setInt(16, totalPokemon)
             playerStmt.setLong(17, cobbledollars)
+            playerStmt.setInt(18, deaths)
             playerStmt.executeUpdate()
             playerStmt.close()
 
@@ -359,19 +378,20 @@ class PokemonCacheManager(private val gson: Gson) {
     @Synchronized
     fun getLeaderboard(stat: String, limit: Int): List<Map<String, Any?>> {
         val conn = connection ?: return emptyList()
-        val column = when (stat) {
-            "caughtCount" -> "caught_count"
-            "shinyCaughtCount" -> "shiny_caught_count"
-            "pvpWins" -> "pvp_wins"
-            "battleWins" -> "battle_wins"
-            "eggsHatched" -> "eggs_hatched"
-            "tradedCount" -> "traded_count"
-            "evolvedCount" -> "evolved_count"
-            "pokedexCaught" -> "pokedex_caught"
-            "pokedexSeen" -> "pokedex_seen"
-            "playtimeTicks" -> "playtime_ticks"
-            "totalPokemon" -> "total_pokemon"
+        val column = when (stat.lowercase(Locale.ROOT)) {
+            "caughtcount", "caught_count" -> "caught_count"
+            "shinycaughtcount", "shiny_caught_count" -> "shiny_caught_count"
+            "pvpwins", "pvp_wins" -> "pvp_wins"
+            "battlewins", "battle_wins" -> "battle_wins"
+            "eggshatched", "eggs_hatched" -> "eggs_hatched"
+            "tradedcount", "traded_count" -> "traded_count"
+            "evolvedcount", "evolved_count" -> "evolved_count"
+            "pokedexcaught", "pokedex_caught" -> "pokedex_caught"
+            "pokedexseen", "pokedex_seen" -> "pokedex_seen"
+            "playtimeticks", "playtime_ticks" -> "playtime_ticks"
+            "totalpokemon", "total_pokemon" -> "total_pokemon"
             "cobbledollars" -> "cobbledollars"
+            "deathcount", "deaths" -> "deaths"
             else -> return emptyList()
         }
 
@@ -399,5 +419,31 @@ class PokemonCacheManager(private val gson: Gson) {
             logger.error("Failed to fetch leaderboard for {}", stat, e)
         }
         return list
+    }
+
+    private fun resolveNameFromCache(server: MinecraftServer, playerUuid: UUID): String? {
+        val profileCache = ReflectionHelpers.readField(server, "profileCache")
+            ?: ReflectionHelpers.callNoArg(server, listOf("getProfileCache", "profileCache"))
+            ?: return null
+
+        val result = ReflectionHelpers.callSingleArg(profileCache, listOf("get"), playerUuid) ?: return null
+        val profile = ReflectionHelpers.extractOptionalValue(result) ?: result
+        val rawName = ReflectionHelpers.readField(profile, "name")
+            ?: ReflectionHelpers.callNoArg(profile, listOf("getName", "name"))
+            ?: return null
+        return rawName.toString().trim().ifBlank { null }
+    }
+
+    private fun resolveNameFromUserCacheFile(playerUuid: UUID): String? {
+        try {
+            val userCacheFile = File("usercache.json")
+            if (!userCacheFile.exists()) return null
+            val json = userCacheFile.readText()
+            val entries = gson.fromJson<List<Map<String, Any>>>(json, object : TypeToken<List<Map<String, Any>>>() {}.type)
+            val uuidStr = playerUuid.toString()
+            return entries.find { it["uuid"] == uuidStr }?.get("name")?.toString()
+        } catch (_: Exception) {
+            return null
+        }
     }
 }
