@@ -27,5 +27,8 @@ data class DiscordCommandsDatabase(
     val apiEnabled: Boolean = true,
     val apiHost: String = "0.0.0.0",
     val apiPort: Int = 8088,
-    val apiAuthToken: String = ""
+    val apiAuthToken: String = "",
+    val apiPokemonCacheEnabled: Boolean = true,
+    val apiPokemonCachePath: String = "pokemon_cache.db",
+    val apiPokemonCacheSyncIntervalMinutes: Int = 10
 )

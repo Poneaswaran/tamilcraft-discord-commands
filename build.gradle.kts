@@ -48,6 +48,7 @@ dependencies {
 	// Inject Simple Discord Link and CraterLib using your exact versions
 	implementation("com.hypherionmc.sdlink:sdlink:3.4.0")
 	modImplementation("com.hypherionmc.craterlib:CraterLib-Fabric-1.21:3.1.0")
+	implementation("org.xerial:sqlite-jdbc:3.45.2.0")
 }
 
 tasks.processResources {

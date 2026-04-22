@@ -21,11 +21,11 @@ import java.util.UUID
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
 
-class PlayerApiServer(private val gson: Gson) {
+class PlayerApiServer(private val gson: Gson, private val pokemonCacheManager: PokemonCacheManager) {
     private val logger = LoggerFactory.getLogger("tamilcraft-discord-commands")
 
     @Volatile
-    private var activeServer: MinecraftServer? = null
+    internal var activeServer: MinecraftServer? = null
 
     @Volatile
     private var requiredToken: String = ""
@@ -257,7 +257,7 @@ class PlayerApiServer(private val gson: Gson) {
                 }
 
                 segments.size == 2 && segments[1].equals("pokedex", ignoreCase = true) -> {
-                    val pokedex = CobblemonBridge.readPokedex(identity.uuid)
+                    val pokedex = CobblemonBridge.readPokedex(server, identity.uuid)
                     writeJson(exchange, 200, mapOf("player" to identityPayload(identity)) + pokedex)
                 }
 
@@ -313,40 +313,45 @@ class PlayerApiServer(private val gson: Gson) {
                 else -> "type"
             }
 
-            val allUuids = collectKnownPlayerUuids(server)
-            val matches = mutableListOf<Map<String, Any?>>()
+            val matches = if (DiscordCommandsMod.db.apiPokemonCacheEnabled) {
+                pokemonCacheManager.searchPlayers(mode, normalizedType)
+            } else {
+                val allUuids = collectKnownPlayerUuids(server)
+                val localMatches = mutableListOf<Map<String, Any?>>()
 
-            allUuids.forEach { playerUuid ->
-                val identity = resolveIdentity(server, playerUuid.toString())
-                    ?: PlayerIdentity(
-                        uuid = playerUuid,
-                        input = playerUuid.toString(),
-                        player = server.playerList.getPlayer(playerUuid),
-                        cachedName = resolveProfileNameByUuid(server, playerUuid)
-                    )
+                allUuids.forEach { playerUuid ->
+                    val identity = resolveIdentity(server, playerUuid.toString())
+                        ?: PlayerIdentity(
+                            uuid = playerUuid,
+                            input = playerUuid.toString(),
+                            player = server.playerList.getPlayer(playerUuid),
+                            cachedName = resolveProfileNameByUuid(server, playerUuid)
+                        )
 
-                val matchedPokemon = CobblemonBridge.collectAllPokemonSummaries(server, playerUuid).filter { pokemon ->
-                    when (mode) {
-                        "legendary" -> pokemon["legendary"] == true
-                        "all" -> true
-                        else -> {
-                            val types = (pokemon["types"] as? List<*>)
-                                ?.mapNotNull { it?.toString()?.lowercase(Locale.ROOT) }
-                                ?: emptyList()
-                            types.contains(normalizedType)
+                    val matchedPokemon = CobblemonBridge.collectAllPokemonSummaries(server, playerUuid).filter { pokemon ->
+                        when (mode) {
+                            "legendary" -> pokemon["legendary"] == true
+                            "all" -> true
+                            else -> {
+                                val types = (pokemon["types"] as? List<*>)
+                                    ?.mapNotNull { it?.toString()?.lowercase(Locale.ROOT) }
+                                    ?: emptyList()
+                                types.contains(normalizedType)
+                            }
                         }
                     }
-                }
 
-                if (matchedPokemon.isNotEmpty()) {
-                    matches.add(
-                        mapOf(
-                            "player" to identityPayload(identity),
-                            "matchCount" to matchedPokemon.size,
-                            "pokemon" to matchedPokemon
+                    if (matchedPokemon.isNotEmpty()) {
+                        localMatches.add(
+                            mapOf(
+                                "player" to identityPayload(identity),
+                                "matchCount" to matchedPokemon.size,
+                                "pokemon" to matchedPokemon
+                            )
                         )
-                    )
+                    }
                 }
+                localMatches
             }
 
             writeJson(
@@ -358,6 +363,7 @@ class PlayerApiServer(private val gson: Gson) {
                         "mode" to mode,
                         "defaultLegendary" to requestedType.isBlank()
                     ),
+                    "cacheUsed" to DiscordCommandsMod.db.apiPokemonCacheEnabled,
                     "playerCount" to matches.size,
                     "players" to matches
                 )
@@ -370,7 +376,7 @@ class PlayerApiServer(private val gson: Gson) {
         val playtimeTicks = onlinePlayer?.let { readPlaytimeTicks(it) } ?: 0
         val party = CobblemonBridge.readParty(server, identity.uuid)
         val pc = CobblemonBridge.readPc(server, identity.uuid)
-        val pokedex = CobblemonBridge.readPokedex(identity.uuid)
+        val pokedex = CobblemonBridge.readPokedex(server, identity.uuid)
         val progress = CobblemonBridge.readProgress(identity.uuid)
 
         val playerMap = identityPayload(identity) + mapOf(
@@ -413,7 +419,10 @@ class PlayerApiServer(private val gson: Gson) {
             "lookup" to identity.input,
             "uuid" to identity.uuid.toString(),
             "name" to (identity.player?.gameProfile?.name ?: identity.cachedName),
-            "online" to (identity.player != null)
+            "online" to (identity.player != null),
+            "skinUrl" to "https://mc-heads.net/skin/${identity.uuid}",
+            "avatarUrl" to "https://mc-heads.net/avatar/${identity.uuid}/64",
+            "renderUrl" to "https://mc-heads.net/body/${identity.uuid}/150"
         )
     }
 
@@ -598,7 +607,7 @@ class PlayerApiServer(private val gson: Gson) {
     }
 }
 
-private object CobblemonBridge {
+internal object CobblemonBridge {
     private val logger = LoggerFactory.getLogger("tamilcraft-discord-commands")
 
     private data class PcSlotRecord(
@@ -712,7 +721,7 @@ private object CobblemonBridge {
         }
     }
 
-    fun readPokedex(playerUuid: UUID): Map<String, Any?> {
+    fun readPokedex(server: MinecraftServer, playerUuid: UUID): Map<String, Any?> {
         if (!isLoaded()) {
             return mapOf("summary" to emptyMap<String, Any>(), "entries" to emptyList<Map<String, Any?>>())
         }
@@ -728,16 +737,21 @@ private object CobblemonBridge {
             val recordsMap = ReflectionHelpers.asMap(recordsObj)
             var seenCount = 0
             var caughtCount = 0
+            var caughtFormsCount = 0
+            val caughtTypes = mutableSetOf<String>()
 
             val entries = recordsMap.entries.map { (speciesId, recordObj) ->
                 val knowledge = ReflectionHelpers.extractDisplayName(
                     ReflectionHelpers.callNoArg(recordObj, listOf("getKnowledge", "knowledge"))
                 ) ?: "NONE"
 
+                val isSpeciesCaught = knowledge.equals("CAUGHT", ignoreCase = true)
+                val species = if (isSpeciesCaught) resolveSpeciesById(speciesId) else null
+
                 if (!knowledge.equals("NONE", ignoreCase = true)) {
                     seenCount += 1
                 }
-                if (knowledge.equals("CAUGHT", ignoreCase = true)) {
+                if (isSpeciesCaught) {
                     caughtCount += 1
                 }
 
@@ -752,13 +766,30 @@ private object CobblemonBridge {
                 val formsMap = ReflectionHelpers.asMap(formsRaw)
 
                 val forms = formsMap.entries.map { (formName, formRecord) ->
+                    val formKnowledge = ReflectionHelpers.extractDisplayName(
+                        ReflectionHelpers.callNoArg(formRecord, listOf("getKnowledge", "knowledge"))
+                    ) ?: "NONE"
+                    val isFormCaught = formKnowledge.equals("CAUGHT", ignoreCase = true)
+
+                    if (isFormCaught) {
+                        caughtFormsCount++
+                        if (species != null) {
+                            val formObj = ReflectionHelpers.callSingleArg(species, listOf("getForm"), formName.toString())
+                                ?: ReflectionHelpers.callSingleArg(species, listOf("getForm"), formName)
+                            if (formObj != null) {
+                                val types = ReflectionHelpers.extractEntries(
+                                    ReflectionHelpers.readField(formObj, "types")
+                                        ?: ReflectionHelpers.callNoArg(formObj, listOf("getTypes", "types"))
+                                ).mapNotNull { ReflectionHelpers.extractDisplayName(it) }
+                                caughtTypes.addAll(types)
+                            }
+                        }
+                    }
+
                     mapOf(
                         "form" to formName.toString(),
-                        "knowledge" to (
-                            ReflectionHelpers.extractDisplayName(
-                                ReflectionHelpers.callNoArg(formRecord, listOf("getKnowledge", "knowledge"))
-                            ) ?: "NONE"
-                        ),
+                        "knowledge" to formKnowledge,
+                        "caught" to isFormCaught,
                         "genders" to ReflectionHelpers.extractEntries(
                             ReflectionHelpers.callNoArg(formRecord, listOf("getGenders", "genders"))
                                 ?: emptyList<String>()
@@ -778,11 +809,25 @@ private object CobblemonBridge {
                 )
             }
 
+            val totalSpecies = resolveTotalSpeciesCount()
+            val completionPercentage = if (totalSpecies > 0) {
+                (caughtCount.toDouble() / totalSpecies.toDouble() * 1000.0).roundToInt() / 10.0
+            } else 0.0
+
+            val allPokemon = collectAllPokemonSummaries(server, playerUuid)
+            val shinyCount = allPokemon.count { it["shiny"] == true }
+
             mapOf(
                 "summary" to mapOf(
                     "seenCount" to seenCount,
                     "caughtCount" to caughtCount,
-                    "speciesRecordCount" to recordsMap.size
+                    "speciesRecordCount" to recordsMap.size,
+                    "totalSpecies" to totalSpecies,
+                    "completionPercentage" to completionPercentage,
+                    "shinyCount" to shinyCount,
+                    "caughtTypesCount" to caughtTypes.size,
+                    "caughtTypes" to caughtTypes.toList().sorted(),
+                    "caughtFormsCount" to caughtFormsCount
                 ),
                 "entries" to entries
             )
@@ -940,6 +985,35 @@ private object CobblemonBridge {
             instance,
             listOf("getPlayerDataManager", "playerDataManager")
         )
+    }
+
+    private fun resolveSpeciesById(speciesId: Any): Any? {
+        return try {
+            val registryClass = try {
+                Class.forName("com.cobblemon.mod.common.api.pokemon.SpeciesRegistry")
+            } catch (_: Exception) {
+                Class.forName("com.cobblemon.mod.common.pokemon.SpeciesRegistry")
+            }
+            val instance = ReflectionHelpers.readStaticField(registryClass, "INSTANCE") ?: return null
+            ReflectionHelpers.callSingleArg(instance, listOf("get"), speciesId)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun resolveTotalSpeciesCount(): Int {
+        return try {
+            val registryClass = try {
+                Class.forName("com.cobblemon.mod.common.api.pokemon.SpeciesRegistry")
+            } catch (_: Exception) {
+                Class.forName("com.cobblemon.mod.common.pokemon.SpeciesRegistry")
+            }
+            val instance = ReflectionHelpers.readStaticField(registryClass, "INSTANCE") ?: return 0
+            val all = ReflectionHelpers.callNoArg(instance, listOf("getAll"))
+            ReflectionHelpers.extractEntries(all).size
+        } catch (e: Exception) {
+            0
+        }
     }
 
     private fun summarizePcBox(index: Int, box: Any): Map<String, Any?> {
