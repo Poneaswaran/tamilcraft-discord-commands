@@ -40,6 +40,16 @@ class DiscordCommandsMod : ModInitializer, PreLaunchEntrypoint {
         playerApiServer.registerLifecycleHooks()
         applyApiConfig()
 
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STARTED.register(net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.ServerStarted { server ->
+            if (db.apiPokemonCacheEnabled) {
+                Thread {
+                    logger.info("Server started, triggering initial pokemon cache sync...")
+                    val uuids = collectAllPlayerUuids(server)
+                    pokemonCacheManager.syncAll(server, uuids)
+                }.start()
+            }
+        })
+
         CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback { dispatcher, registryAccess, environment ->
             dispatcher.register(Commands.literal("tc-discord")
                 .requires { source -> source.hasPermission(2) }

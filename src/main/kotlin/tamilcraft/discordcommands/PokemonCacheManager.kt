@@ -10,6 +10,15 @@ import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.util.*
 
+data class CachedPlayerInfo(
+    val name: String,
+    val playtimeTicks: Int,
+    val health: Double,
+    val maxHealth: Double,
+    val pokedexSeen: Int,
+    val pokedexCaught: Int
+)
+
 class PokemonCacheManager(private val gson: Gson) {
     private val logger = LoggerFactory.getLogger("tamilcraft-discord-commands-cache")
     private var connection: Connection? = null
@@ -30,9 +39,43 @@ class PokemonCacheManager(private val gson: Gson) {
                 CREATE TABLE IF NOT EXISTS players (
                     uuid TEXT PRIMARY KEY,
                     name TEXT,
-                    last_updated INTEGER
+                    last_updated INTEGER,
+                    playtime_ticks INTEGER DEFAULT 0,
+                    health REAL DEFAULT 20.0,
+                    max_health REAL DEFAULT 20.0,
+                    pokedex_seen INTEGER DEFAULT 0,
+                    pokedex_caught INTEGER DEFAULT 0,
+                    caught_count INTEGER DEFAULT 0,
+                    shiny_caught_count INTEGER DEFAULT 0,
+                    pvp_wins INTEGER DEFAULT 0,
+                    battle_wins INTEGER DEFAULT 0,
+                    eggs_hatched INTEGER DEFAULT 0,
+                    traded_count INTEGER DEFAULT 0,
+                    evolved_count INTEGER DEFAULT 0,
+                    total_pokemon INTEGER DEFAULT 0
                 )
             """)
+            // Ensure columns exist for existing databases
+            val columns = listOf(
+                "playtime_ticks INTEGER DEFAULT 0",
+                "health REAL DEFAULT 20.0",
+                "max_health REAL DEFAULT 20.0",
+                "pokedex_seen INTEGER DEFAULT 0",
+                "pokedex_caught INTEGER DEFAULT 0",
+                "caught_count INTEGER DEFAULT 0",
+                "shiny_caught_count INTEGER DEFAULT 0",
+                "pvp_wins INTEGER DEFAULT 0",
+                "battle_wins INTEGER DEFAULT 0",
+                "eggs_hatched INTEGER DEFAULT 0",
+                "traded_count INTEGER DEFAULT 0",
+                "evolved_count INTEGER DEFAULT 0",
+                "total_pokemon INTEGER DEFAULT 0"
+            )
+            columns.forEach { col ->
+                try {
+                    statement?.executeUpdate("ALTER TABLE players ADD COLUMN $col")
+                } catch (_: Exception) {}
+            }
             statement?.executeUpdate("""
                 CREATE TABLE IF NOT EXISTS player_pokemon (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -67,13 +110,80 @@ class PokemonCacheManager(private val gson: Gson) {
     fun updatePlayerCache(server: MinecraftServer, playerUuid: UUID, playerName: String?) {
         val conn = connection ?: return
         try {
+            val onlinePlayer = server.playerList.getPlayer(playerUuid)
+            
+            // Get playtime
+            val playtimeTicks = onlinePlayer?.let { 
+                try {
+                    it.server.playerList.getPlayerStats(it).getValue(net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.PLAY_TIME))
+                } catch (_: Exception) { 0 }
+            } ?: 0
+            
+            val health = onlinePlayer?.health?.toDouble() ?: 20.0
+            val maxHealth = onlinePlayer?.maxHealth?.toDouble() ?: 20.0
+            
+            // Get pokedex summary
+            val pokedex = CobblemonBridge.readPokedex(server, playerUuid)
+            val summary = pokedex["summary"] as? Map<*, *>
+            val seenCount = (summary?.get("seenCount") as? Number)?.toInt() ?: 0
+            val caughtCountInPokedex = (summary?.get("caughtCount") as? Number)?.toInt() ?: 0
+
+            // Get progress stats
+            val progress = CobblemonBridge.readProgress(playerUuid)
+            val advancement = progress["advancement"] as? Map<*, *>
+            val caughtCount = (advancement?.get("totalCaptureCount") as? Number)?.toInt() ?: 0
+            val shinyCaughtCount = (advancement?.get("totalShinyCaptureCount") as? Number)?.toInt() ?: 0
+            val pvpWins = (advancement?.get("totalPvPBattleVictoryCount") as? Number)?.toInt() ?: 0
+            val battleWins = (advancement?.get("totalBattleVictoryCount") as? Number)?.toInt() ?: 0
+            val eggsHatched = (advancement?.get("totalEggsHatched") as? Number)?.toInt() ?: 0
+            val tradedCount = (advancement?.get("totalTradedCount") as? Number)?.toInt() ?: 0
+            val evolvedCount = (advancement?.get("totalEvolvedCount") as? Number)?.toInt() ?: 0
+
+            // Get total pokemon
+            val pokemonList = CobblemonBridge.collectAllPokemonSummaries(server, playerUuid)
+            val totalPokemon = pokemonList.size
+
             conn.autoCommit = false
             
             // Update player info
-            val playerStmt = conn.prepareStatement("INSERT OR REPLACE INTO players (uuid, name, last_updated) VALUES (?, ?, ?)")
+            val playerStmt = conn.prepareStatement("""
+                INSERT INTO players (uuid, name, last_updated, playtime_ticks, health, max_health, 
+                    pokedex_seen, pokedex_caught, caught_count, shiny_caught_count, 
+                    pvp_wins, battle_wins, eggs_hatched, traded_count, evolved_count, total_pokemon) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(uuid) DO UPDATE SET 
+                    name=excluded.name, 
+                    last_updated=excluded.last_updated,
+                    playtime_ticks=excluded.playtime_ticks,
+                    health=excluded.health,
+                    max_health=excluded.max_health,
+                    pokedex_seen=excluded.pokedex_seen,
+                    pokedex_caught=excluded.pokedex_caught,
+                    caught_count=excluded.caught_count,
+                    shiny_caught_count=excluded.shiny_caught_count,
+                    pvp_wins=excluded.pvp_wins,
+                    battle_wins=excluded.battle_wins,
+                    eggs_hatched=excluded.eggs_hatched,
+                    traded_count=excluded.traded_count,
+                    evolved_count=excluded.evolved_count,
+                    total_pokemon=excluded.total_pokemon
+            """)
             playerStmt.setString(1, playerUuid.toString())
             playerStmt.setString(2, playerName ?: playerUuid.toString())
             playerStmt.setLong(3, System.currentTimeMillis())
+            playerStmt.setInt(4, playtimeTicks)
+            playerStmt.setDouble(5, health)
+            playerStmt.setDouble(6, maxHealth)
+            playerStmt.setInt(7, seenCount)
+            playerStmt.setInt(8, caughtCountInPokedex)
+            playerStmt.setInt(9, caughtCount)
+            playerStmt.setInt(10, shinyCaughtCount)
+            playerStmt.setInt(11, pvpWins)
+            playerStmt.setInt(12, battleWins)
+            playerStmt.setInt(13, eggsHatched)
+            playerStmt.setInt(14, tradedCount)
+            playerStmt.setInt(15, evolvedCount)
+            playerStmt.setInt(16, totalPokemon)
             playerStmt.executeUpdate()
             playerStmt.close()
 
@@ -82,9 +192,6 @@ class PokemonCacheManager(private val gson: Gson) {
             deleteStmt.setString(1, playerUuid.toString())
             deleteStmt.executeUpdate()
             deleteStmt.close()
-
-            // Fetch current pokemon from Cobblemon
-            val pokemonList = CobblemonBridge.collectAllPokemonSummaries(server, playerUuid)
             
             // Insert new pokemon
             val insertStmt = conn.prepareStatement("""
@@ -184,5 +291,104 @@ class PokemonCacheManager(private val gson: Gson) {
             updatePlayerCache(server, uuid, name)
         }
         logger.info("Full pokemon cache sync complete.")
+    }
+
+    @Synchronized
+    fun getCachedPokemon(playerUuid: UUID): List<Map<String, Any?>> {
+        val conn = connection ?: return emptyList()
+        val pokemonList = mutableListOf<Map<String, Any?>>()
+        try {
+            val stmt = conn.prepareStatement("SELECT * FROM player_pokemon WHERE player_uuid = ?")
+            stmt.setString(1, playerUuid.toString())
+            val rs = stmt.executeQuery()
+            while (rs.next()) {
+                pokemonList.add(mapOf(
+                    "species" to rs.getString("species"),
+                    "types" to rs.getString("types").split(",").filter { it.isNotBlank() },
+                    "legendary" to rs.getBoolean("legendary"),
+                    "level" to rs.getInt("level"),
+                    "shiny" to rs.getBoolean("shiny"),
+                    "nickname" to rs.getString("nickname")
+                ))
+            }
+            rs.close()
+            stmt.close()
+        } catch (e: Exception) {
+            logger.error("Failed to get cached pokemon for {}", playerUuid, e)
+        }
+        return pokemonList
+    }
+
+    @Synchronized
+    fun getCachedPlayerInfo(playerUuid: UUID): CachedPlayerInfo? {
+        val conn = connection ?: return null
+        return try {
+            val stmt = conn.prepareStatement("SELECT * FROM players WHERE uuid = ?")
+            stmt.setString(1, playerUuid.toString())
+            val rs = stmt.executeQuery()
+            if (rs.next()) {
+                val info = CachedPlayerInfo(
+                    name = rs.getString("name"),
+                    playtimeTicks = rs.getInt("playtime_ticks"),
+                    health = rs.getDouble("health"),
+                    maxHealth = rs.getDouble("max_health"),
+                    pokedexSeen = rs.getInt("pokedex_seen"),
+                    pokedexCaught = rs.getInt("pokedex_caught")
+                )
+                rs.close()
+                stmt.close()
+                info
+            } else {
+                rs.close()
+                stmt.close()
+                null
+            }
+        } catch (e: Exception) {
+            logger.error("Failed to get cached player info for {}", playerUuid, e)
+            null
+        }
+    }
+    @Synchronized
+    fun getLeaderboard(stat: String, limit: Int): List<Map<String, Any?>> {
+        val conn = connection ?: return emptyList()
+        val column = when (stat) {
+            "caughtCount" -> "caught_count"
+            "shinyCaughtCount" -> "shiny_caught_count"
+            "pvpWins" -> "pvp_wins"
+            "battleWins" -> "battle_wins"
+            "eggsHatched" -> "eggs_hatched"
+            "tradedCount" -> "traded_count"
+            "evolvedCount" -> "evolved_count"
+            "pokedexCaught" -> "pokedex_caught"
+            "pokedexSeen" -> "pokedex_seen"
+            "playtimeTicks" -> "playtime_ticks"
+            "totalPokemon" -> "total_pokemon"
+            else -> return emptyList()
+        }
+
+        val list = mutableListOf<Map<String, Any?>>()
+        try {
+            val stmt = conn.prepareStatement("SELECT uuid, name, $column FROM players ORDER BY $column DESC LIMIT ?")
+            stmt.setInt(1, limit)
+            val rs = stmt.executeQuery()
+            while (rs.next()) {
+                val uuid = rs.getString("uuid")
+                list.add(mapOf(
+                    "player" to mapOf(
+                        "uuid" to uuid,
+                        "name" to rs.getString("name"),
+                        "skinUrl" to "https://mc-heads.net/skin/$uuid",
+                        "avatarUrl" to "https://mc-heads.net/avatar/$uuid/64",
+                        "renderUrl" to "https://mc-heads.net/body/$uuid/150"
+                    ),
+                    "score" to rs.getLong(column)
+                ))
+            }
+            rs.close()
+            stmt.close()
+        } catch (e: Exception) {
+            logger.error("Failed to fetch leaderboard for {}", stat, e)
+        }
+        return list
     }
 }

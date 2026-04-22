@@ -59,6 +59,8 @@ class PlayerApiServer(private val gson: Gson, private val pokemonCacheManager: P
         server.createContext("/api/player", LegacyPlayerDetailsHandler())
         server.createContext("/api/players", PlayersApiHandler())
         server.createContext("/api/pokemon/players", PokemonPlayersHandler())
+        server.createContext("/api/leaderboard", LeaderboardHandler())
+        server.createContext("/api/server/stats", ServerStatsHandler())
         server.executor = Executors.newFixedThreadPool(2)
         server.start()
 
@@ -206,14 +208,16 @@ class PlayerApiServer(private val gson: Gson, private val pokemonCacheManager: P
                 }
 
                 segments.size == 2 && segments[1].equals("party", ignoreCase = true) -> {
-                    val party = CobblemonBridge.readParty(server, identity.uuid)
+                    val lowTps = DiscordCommandsMod.db.apiPokemonCacheEnabled && getAverageTps(server) < 18.0
+                    val party = if (lowTps) pokemonCacheManager.getCachedPokemon(identity.uuid) else CobblemonBridge.readParty(server, identity.uuid)
                     writeJson(
                         exchange,
                         200,
                         mapOf(
                             "player" to identityPayload(identity),
                             "partyCount" to party.size,
-                            "party" to party
+                            "party" to party,
+                            "lowTpsMode" to lowTps
                         )
                     )
                 }
@@ -231,9 +235,15 @@ class PlayerApiServer(private val gson: Gson, private val pokemonCacheManager: P
                         return
                     }
 
-                    val pc = CobblemonBridge.readPc(server, identity.uuid)
+                    val lowTps = DiscordCommandsMod.db.apiPokemonCacheEnabled && getAverageTps(server) < 18.0
+                    val pc = if (lowTps) {
+                        mapOf("boxes" to listOf(mapOf("name" to "Cached PC (Low TPS)", "pokemon" to pokemonCacheManager.getCachedPokemon(identity.uuid))))
+                    } else {
+                        CobblemonBridge.readPc(server, identity.uuid)
+                    }
+                    
                     val paginatedPc = paginatePcBoxes(pc, page, pageSize)
-                    writeJson(exchange, 200, mapOf("player" to identityPayload(identity)) + paginatedPc)
+                    writeJson(exchange, 200, mapOf("player" to identityPayload(identity), "lowTpsMode" to lowTps) + paginatedPc)
                 }
 
                 segments.size == 3 && segments[1].equals("pc", ignoreCase = true) && segments[2].equals("search", ignoreCase = true) -> {
@@ -243,7 +253,16 @@ class PlayerApiServer(private val gson: Gson, private val pokemonCacheManager: P
                         return
                     }
 
-                    val matches = CobblemonBridge.searchPc(server, identity.uuid, query)
+                    val lowTps = DiscordCommandsMod.db.apiPokemonCacheEnabled && getAverageTps(server) < 18.0
+                    val matches = if (lowTps) {
+                        pokemonCacheManager.getCachedPokemon(identity.uuid).filter { 
+                            it["species"]?.toString()?.contains(query, ignoreCase = true) == true || 
+                            it["nickname"]?.toString()?.contains(query, ignoreCase = true) == true 
+                        }
+                    } else {
+                        CobblemonBridge.searchPc(server, identity.uuid, query)
+                    }
+                    
                     writeJson(
                         exchange,
                         200,
@@ -251,7 +270,8 @@ class PlayerApiServer(private val gson: Gson, private val pokemonCacheManager: P
                             "player" to identityPayload(identity),
                             "query" to query,
                             "matchCount" to matches.size,
-                            "matches" to matches
+                            "matches" to matches,
+                            "lowTpsMode" to lowTps
                         )
                     )
                 }
@@ -371,17 +391,108 @@ class PlayerApiServer(private val gson: Gson, private val pokemonCacheManager: P
         }
     }
 
+    private inner class ServerStatsHandler : HttpHandler {
+        override fun handle(exchange: HttpExchange) {
+            if (!isAuthorized(exchange)) {
+                writeJson(exchange, 401, mapOf("error" to "Unauthorized"))
+                return
+            }
+
+            if (exchange.requestMethod != "GET") {
+                writeJson(exchange, 405, mapOf("error" to "Only GET is supported"))
+                return
+            }
+
+            val server = activeServer
+            if (server == null) {
+                writeJson(exchange, 503, mapOf("error" to "Minecraft server not available yet"))
+                return
+            }
+
+            val overworld = server.overworld()
+            val dayTime = overworld.dayTime
+            
+            val onlinePlayers = server.playerList.players.map { onlinePlayer ->
+                identityPayload(PlayerIdentity(
+                    uuid = onlinePlayer.uuid,
+                    input = onlinePlayer.gameProfile.name,
+                    player = onlinePlayer,
+                    cachedName = onlinePlayer.gameProfile.name
+                ))
+            }
+
+            writeJson(
+                exchange,
+                200,
+                mapOf(
+                    "onlinePlayerCount" to server.playerList.playerCount,
+                    "maxPlayers" to server.maxPlayers,
+                    "onlinePlayers" to onlinePlayers,
+                    "worldTime" to dayTime,
+                    "dayNumber" to (dayTime / 24000L),
+                    "totalKnownPlayers" to collectKnownPlayerUuids(server).size,
+                    "motd" to server.motd,
+                    "cobblemonLoaded" to CobblemonBridge.isLoaded(),
+                    "totalSpecies" to CobblemonBridge.resolveTotalSpeciesCount(),
+                    "tps" to getAverageTps(server)
+                )
+            )
+        }
+    }
+
+    private inner class LeaderboardHandler : HttpHandler {
+        override fun handle(exchange: HttpExchange) {
+            if (!isAuthorized(exchange)) {
+                writeJson(exchange, 401, mapOf("error" to "Unauthorized"))
+                return
+            }
+
+            if (exchange.requestMethod != "GET") {
+                writeJson(exchange, 405, mapOf("error" to "Only GET is supported"))
+                return
+            }
+
+            if (!DiscordCommandsMod.db.apiPokemonCacheEnabled) {
+                writeJson(exchange, 503, mapOf("error" to "Leaderboard requires pokemon cache to be enabled"))
+                return
+            }
+
+            val queryParams = parseQueryParams(exchange.requestURI.rawQuery)
+            val stat = queryParams["stat"] ?: "playtimeTicks"
+            val limit = parsePositiveIntQueryParam(queryParams["limit"], 10) ?: 10
+
+            val leaderboard = pokemonCacheManager.getLeaderboard(stat, limit.coerceAtMost(100))
+            
+            writeJson(
+                exchange,
+                200,
+                mapOf(
+                    "stat" to stat,
+                    "limit" to limit,
+                    "count" to leaderboard.size,
+                    "leaderboard" to leaderboard
+                )
+            )
+        }
+    }
+
     private fun buildPlayerProfile(server: MinecraftServer, identity: PlayerIdentity): Map<String, Any?> {
         val onlinePlayer = identity.player
-        val playtimeTicks = onlinePlayer?.let { readPlaytimeTicks(it) } ?: 0
-        val party = CobblemonBridge.readParty(server, identity.uuid)
-        val pc = CobblemonBridge.readPc(server, identity.uuid)
-        val pokedex = CobblemonBridge.readPokedex(server, identity.uuid)
-        val progress = CobblemonBridge.readProgress(identity.uuid)
+        val lowTps = DiscordCommandsMod.db.apiPokemonCacheEnabled && getAverageTps(server) < 18.0
+        
+        val cachedData = if ((onlinePlayer == null || lowTps) && DiscordCommandsMod.db.apiPokemonCacheEnabled) {
+            pokemonCacheManager.getCachedPlayerInfo(identity.uuid)
+        } else null
+
+        val playtimeTicks = onlinePlayer?.let { readPlaytimeTicks(it) } ?: cachedData?.playtimeTicks ?: 0
+        val party = if (lowTps) pokemonCacheManager.getCachedPokemon(identity.uuid) else CobblemonBridge.readParty(server, identity.uuid)
+        val pc = if (lowTps) emptyMap<String, Any>() else CobblemonBridge.readPc(server, identity.uuid)
+        val pokedex = if (lowTps) emptyMap<String, Any>() else CobblemonBridge.readPokedex(server, identity.uuid)
+        val progress = if (lowTps) emptyMap<String, Any>() else CobblemonBridge.readProgress(identity.uuid)
 
         val playerMap = identityPayload(identity) + mapOf(
-            "health" to onlinePlayer?.let { (it.health * 10.0).roundToInt() / 10.0 },
-            "maxHealth" to onlinePlayer?.let { (it.maxHealth * 10.0).roundToInt() / 10.0 }
+            "health" to (onlinePlayer?.let { (it.health * 10.0).roundToInt() / 10.0 } ?: cachedData?.health),
+            "maxHealth" to (onlinePlayer?.let { (it.maxHealth * 10.0).roundToInt() / 10.0 } ?: cachedData?.maxHealth)
         )
 
         val pcPokemonCount = ((pc["boxes"] as? List<*>) ?: emptyList<Any>())
@@ -400,8 +511,9 @@ class PlayerApiServer(private val gson: Gson, private val pokemonCacheManager: P
                 "loaded" to CobblemonBridge.isLoaded(),
                 "partyCount" to party.size,
                 "pcPokemonCount" to pcPokemonCount,
-                "pokedexSeenCount" to ((pokedexSummary["seenCount"] as? Number)?.toInt() ?: 0),
-                "pokedexCaughtCount" to ((pokedexSummary["caughtCount"] as? Number)?.toInt() ?: 0)
+                "pokedexSeenCount" to (onlinePlayer?.let { ((pokedexSummary["seenCount"] as? Number)?.toInt() ?: 0) } ?: cachedData?.pokedexSeen ?: 0),
+                "pokedexCaughtCount" to (onlinePlayer?.let { ((pokedexSummary["caughtCount"] as? Number)?.toInt() ?: 0) } ?: cachedData?.pokedexCaught ?: 0),
+                "lowTpsMode" to lowTps
             ),
             "general" to (progress["general"] ?: emptyMap<String, Any?>()),
             "links" to mapOf(
@@ -604,6 +716,11 @@ class PlayerApiServer(private val gson: Gson, private val pokemonCacheManager: P
         exchange.responseBody.use { output ->
             output.write(bytes)
         }
+    }
+    private fun getAverageTps(server: MinecraftServer): Double {
+        val meanTickTimeNanos = server.averageTickTimeNanos
+        val meanTickTimeMs = meanTickTimeNanos / 1_000_000.0
+        return if (meanTickTimeMs <= 0.0) 20.0 else (1000.0 / meanTickTimeMs).coerceAtMost(20.0)
     }
 }
 
@@ -1001,7 +1118,7 @@ internal object CobblemonBridge {
         }
     }
 
-    private fun resolveTotalSpeciesCount(): Int {
+    internal fun resolveTotalSpeciesCount(): Int {
         return try {
             val registryClass = try {
                 Class.forName("com.cobblemon.mod.common.api.pokemon.SpeciesRegistry")
